@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Portefeuille & Premium Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-main: #0B0F19;
+      --card-bg: #151C2C;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-gold: linear-gradient(135deg, #FFD700, #FFA500);
+      --accent-purple: linear-gradient(135deg, #6366F1, #8B5CF6);
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --text-white: #FFFFFF;
+      --text-muted: #94A3B8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-white);
+      padding: 16px;
+      padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .back-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.1);
+      padding: 6px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .virtual-card {
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      margin-bottom: 24px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-chip {
+      width: 38px;
+      height: 28px;
+      background: linear-gradient(135deg, #e0aa3e, #f9f295, #b8860b);
+      border-radius: 6px;
+    }
+
+    .card-brand {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .card-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .card-balance {
+      font-size: 2.4rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #CBD5E1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-deposit {
+      background: var(--accent-purple);
+      color: #FFFFFF;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-withdraw {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-white);
+      border: 1px solid var(--card-border);
+    }
+
+    .active-status-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .status-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-card.vip {
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.05) 0%, var(--card-bg) 100%);
+    }
+
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-timer {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #38BDF8;
+    }
+
+    .progress-bar {
+      height: 6px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-purple);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-fill.gold {
+      background: var(--accent-gold);
+    }
+
+    .section-header {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .section-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .plans-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .plan-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .plan-card.gold-border {
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      background: linear-gradient(180deg, rgba(255, 215, 0, 0.03) 0%, var(--card-bg) 100%);
+    }
+
+    .badge-vip {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: var(--accent-gold);
+      color: #000000;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .plan-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .plan-info h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .plan-price {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #FFFFFF;
+    }
+
+    .plan-price span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .plan-features li {
+      font-size: 0.85rem;
+      color: #CBD5E1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plan-features li i {
+      color: var(--accent-green);
+      font-size: 0.9rem;
+    }
+
+    .btn-buy-plan {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-buy-gold {
+      background: var(--accent-gold);
+      color: #000000;
+    }
+
+    .btn-buy-standard {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-white);
+      border: 1px solid var(--card-border);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: #151C2C;
+      border-top: 1px solid var(--card-border);
+      border-radius: 28px 28px 0 0;
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .payment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .payment-opt {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .payment-opt.active {
+      border-color: #6366F1;
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .payment-opt i {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .payment-opt span {
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .input-box {
+      margin-bottom: 16px;
+    }
+
+    .input-box label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .input-box input {
+      width: 100%;
+      padding: 14px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: #FFFFFF;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .btn-submit-deposit {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent-purple);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .articles-select-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .article-item-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      padding: 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .article-item-card:hover, .article-item-card.selected {
+      border-color: #6366F1;
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .article-item-card img {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .article-item-info {
+      flex: 1;
+    }
+
+    .article-item-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .article-item-price {
+      font-size: 0.8rem;
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      left: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #1E293B;
+      color: var(--text-white);
+      padding: 14px 18px;
+      border-radius: 12px;
+      border-left: 4px solid var(--accent-purple);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .toast.success { border-color: var(--accent-green); }
+    .toast.error { border-color: var(--accent-red); }
+    .toast.info { border-color: #38BDF8; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .confirm-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .confirm-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .confirm-btn.yes { background: var(--accent-purple); color: #fff; }
+    .confirm-btn.no { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .trust-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+* {
+    -webkit-tap-highlight-color: transparent;
+  }
+  </style>
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vea Market">
+
+<!-- Icône pour l'écran d'accueil iOS -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Fichier manifest -->
+<link rel="manifest" href="manifest.json">
+
+</head>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
+<body>
+
+  <div id="toast-container"></div>
+
+  <!-- Modal de confirmation -->
+  <div class="confirm-modal" id="customConfirm">
+    <div class="confirm-card">
+      <h3 id="confirmTitle" style="margin-bottom: 10px;">Confirmation</h3>
+      <p id="confirmMessage" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+      <div class="confirm-actions">
+        <button class="confirm-btn no" id="confirmNoBtn">Annuler</button>
+        <button class="confirm-btn yes" id="confirmYesBtn">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- En-tête -->
+  <div class="header">
+    <button class="back-btn" onclick="history.back()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="header-title" data-i18n="header_title">Portefeuille & Boost</div>
+    <div class="security-badge">
+      <i class="fa-solid fa-shield-halved"></i> 256-bit
+    </div>
+  </div>
+
+  <!-- Carte Virtuelle -->
+  <div class="virtual-card">
+    <div class="card-top">
+      <div class="card-chip"></div>
+      <div class="card-brand" data-i18n="active_balance">SOLDE ACTIF</div>
+    </div>
+    <div class="card-label" data-i18n="available_in_account">Disponible dans le compte</div>
+    <div class="card-balance" id="userBalance">0.00 $</div>
+
+    <div class="card-actions">
+
+    </div>
+  </div>
+
+  <!-- Timers Actifs -->
+  <div class="active-status-container" id="activeStatusContainer"></div>
+
+  <!-- Offres -->
+  <div class="section-header">
+    <div class="section-title" data-i18n="boost_section_title">Boostez votre Visibilité</div>
+    <div class="section-subtitle" data-i18n="boost_section_sub">Choisissez une formule pour multiplier vos ventes</div>
+  </div>
+
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-top">
+        <div class="plan-info">
+          <h3 data-i18n="item_boost_title">Boost Article</h3>
+        </div>
+        <div class="plan-price">1.50 $ <span data-i18n="per_7days">/ 7 jours</span></div>
+      </div>
+      <ul class="plan-features">
+        <li><i class="fa-solid fa-circle-check"></i> <span data-i18n="feat_boost_1">Positionné en tête de recherche</span></li>
+        <li><i class="fa-solid fa-circle-check"></i> <span data-i18n="feat_boost_2">Badge "Sponsorisé" attractif</span></li>
+        <li><i class="fa-solid fa-circle-check"></i> <span data-i18n="feat_boost_3">+300% de vues estimées</span></li>
+      </ul>
+      <button class="btn-buy-plan btn-buy-standard" onclick="startBoostProcess()" data-i18n="btn_boost_item">
+        Booster un article
+      </button>
+    </div>
+
+    <div class="plan-card gold-border">
+      <div class="badge-vip" data-i18n="badge_pro">RECOMMANDÉ PRO</div>
+      <div class="plan-top">
+        <div class="plan-info">
+          <h3 style="color: #FFD700;" data-i18n="vip_title">Vendeur VIP Premium</h3>
+        </div>
+        <div class="plan-price">5.00 $ <span data-i18n="per_month">/ mois</span></div>
+      </div>
+      <ul class="plan-features">
+        <li><i class="fa-solid fa-circle-check"></i> <span data-i18n="feat_vip_1">Badge "Vendeur VIP" Doré</span></li>
+        <li><i class="fa-solid fa-circle-check"></i> <span data-i18n="feat_vip_2">Publication d'articles en illimité</span></li>
+        <li><i class="fa-solid fa-circle-check"></i> <span data-i18n="feat_vip_3">Accès au tableau de bord des vues</span></li>
+        <li><i class="fa-solid fa-circle-check"></i> <span data-i18n="feat_vip_4">Support WhatsApp prioritaire 24/7</span></li>
+      </ul>
+      <button class="btn-buy-plan btn-buy-gold" onclick="payService('vip_subscription', 5.00, 30)" data-i18n="btn_activate_vip">
+        Activer le Mode VIP
+      </button>
+    </div>
+  </div>
+
+  <div class="trust-footer" style="flex-direction: column; gap: 4px;">
+    <div><i class="fa-solid fa-lock"></i> Transactions sécurisées par Mobile Money (M-Pesa, Airtel, Orange)</div>
+    <div style="font-size: 0.7rem; color: #94A3B8;">
+      Note : Des frais d'opérateur Mobile Money s'ajoutent au montant (ex: 5.15$ pour 5$).
+      En poursuivant, vous acceptez nos <a href="conditions.html" target="_blank" style="color: #38BDF8; text-decoration: underline;">Conditions Générales</a>.
+    </div>
+  </div>
+
+  <!-- Modal de Sélection d'Article pour Boost -->
+  <div class="modal" id="boostArticleModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Choisissez un article à booster</div>
+        <button class="close-btn" onclick="closeBoostArticleModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+        Seuls vos articles non vendus et non encore boostés sont affichés.
+      </p>
+      <div class="articles-select-list" id="articlesSelectList"></div>
+      <button class="btn-submit-deposit" id="confirmBoostArticleBtn" onclick="confirmBoostSelectedArticle()" disabled>
+        Booster cet article (1.50 $)
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal de Recharge -->
+  <div class="modal" id="depositModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" data-i18n="modal_deposit_title">Recharger votre portefeuille</div>
+        <button class="close-btn" onclick="closeDepositModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="input-box">
+        <label data-i18n="select_operator">Sélectionnez l'opérateur</label>
+        <div class="payment-grid">
+          <div class="payment-opt active" onclick="selectOperator(this, 'airtel')">
+            <i class="fa-solid fa-mobile-retro" style="color: #EF4444;"></i>
+            <span>Airtel</span>
+          </div>
+          <div class="payment-opt" onclick="selectOperator(this, 'mpesa')">
+            <i class="fa-solid fa-mobile-retro" style="color: #10B981;"></i>
+            <span>M-Pesa</span>
+          </div>
+          <div class="payment-opt" onclick="selectOperator(this, 'orange')">
+            <i class="fa-solid fa-mobile-retro" style="color: #F97316;"></i>
+            <span>Orange</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-box">
+        <label data-i18n="phone_number">Numéro de Téléphone Mobile Money</label>
+        <input type="tel" id="phoneNumber" placeholder="ex: +243 *********">
+      </div>
+
+      <div class="input-box">
+        <label data-i18n="amount_usd">Montant à Déposer ($ USD)</label>
+        <input type="number" id="depositAmount" placeholder="ex: 5.00" min="1">
+      </div>
+
+      <button class="btn-submit-deposit" onclick="processDeposit()" data-i18n="btn_confirm_deposit">
+        Confirmer le Dépôt
+      </button>
+    </div>
+  </div>
+
+<!-- Modal de Saisie du Téléphone pour Paiement Service -->
+<div class="modal" id="phonePaymentModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Numéro de paiement</div>
+      <button class="close-btn" onclick="closePhonePaymentModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="input-box">
+      <label>Entrez votre numéro Mobile Money</label>
+      <input type="tel" id="servicePhoneNumber" placeholder="ex: 0812345678">
+    </div>
+    <button class="btn-submit-deposit" id="confirmPhonePaymentBtn">
+      Payer
+    </button>
+  </div>
+</div>
+
+<script type="module">
+  // ============================================================
+  // IMPORTS FIREBASE
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import OneSignal from "onesignal-cordova-plugin";
+
+
+  // ============================================================
+  // TRADUCTIONS
+  // ============================================================
+
+  const translations = {
+    fr: {
+      header_title: "Portefeuille & Boost",
+      active_balance: "SOLDE ACTIF",
+      available_in_account: "Disponible dans le compte",
+      btn_recharge: "Recharger",
+      btn_withdraw: "Retirer",
+      boost_section_title: "Boostez votre Visibilité",
+      boost_section_sub: "Choisissez une formule pour multiplier vos ventes",
+      item_boost_title: "Boost Article",
+      per_7days: "/ 7 jours",
+      feat_boost_1: "Positionné en tête de recherche",
+      feat_boost_2: "Badge 'Sponsorisé' attractif",
+      feat_boost_3: "+300% de vues estimées",
+      btn_boost_item: "Booster un article",
+      badge_pro: "RECOMMANDÉ PRO",
+      vip_title: "Vendeur VIP Premium",
+      per_month: "/ mois",
+      feat_vip_1: "Badge 'Vendeur VIP' Doré",
+      feat_vip_2: "Publication d'articles en illimité",
+      feat_vip_3: "Accès au tableau de bord des vues",
+      feat_vip_4: "Support WhatsApp prioritaire 24/7",
+      btn_activate_vip: "Activer le Mode VIP",
+      trust_text: "Transactions sécurisées par Mobile Money (M-Pesa, Airtel, Orange)",
+      modal_deposit_title: "Recharger votre portefeuille",
+      select_operator: "Sélectionnez l'opérateur",
+      phone_number: "Numéro de Téléphone Mobile Money",
+      amount_usd: "Montant à Déposer ($ USD)",
+      btn_confirm_deposit: "Confirmer le Dépôt",
+      withdraw_notice: "Module de retrait sécurisé bientôt disponible.",
+      invalid_inputs: "Veuillez saisir un numéro valide et un montant supérieur à zéro.",
+      deposit_ussd_sent: "Demande envoyée. Veuillez valider le pop-up USSD sur votre téléphone.",
+      deposit_success: "Votre compte a été crédité avec succès !",
+      insufficient_balance: "Solde insuffisant ({balance}$). Vous avez besoin de {cost}$ pour cet achat.",
+      confirm_purchase: "Confirmez-vous le paiement de {cost}$ pour : {service} ?",
+      purchase_success: "Félicitations ! L'option '{service}' est maintenant active.",
+      transaction_error: "Erreur lors de la transaction.",
+      vip_status_title: "Compte VIP Premium",
+      boost_status_title: "Boost Article Actif",
+      days_short: "j",
+      hours_short: "h",
+      min_short: "m",
+      sec_short: "s",
+      expired: "Expiré"
+    },
+    en: {
+      header_title: "Wallet & Boost",
+      active_balance: "ACTIVE BALANCE",
+      available_in_account: "Available in account",
+      btn_recharge: "Top Up",
+      btn_withdraw: "Withdraw",
+      boost_section_title: "Boost Your Visibility",
+      boost_section_sub: "Choose a plan to multiply your sales",
+      item_boost_title: "Item Boost",
+      per_7days: "/ 7 days",
+      feat_boost_1: "Positioned at top of search",
+      feat_boost_2: "Attractive 'Sponsored' badge",
+      feat_boost_3: "+300% estimated views",
+      btn_boost_item: "Boost an item",
+      badge_pro: "PRO RECOMMENDED",
+      vip_title: "VIP Premium Seller",
+      per_month: "/ month",
+      feat_vip_1: "Golden 'VIP Seller' Badge",
+      feat_vip_2: "Unlimited item listings",
+      feat_vip_3: "Access to views dashboard",
+      feat_vip_4: "24/7 Priority WhatsApp support",
+      btn_activate_vip: "Activate VIP Mode",
+      trust_text: "Transactions secured by Mobile Money (M-Pesa, Airtel, Orange)",
+      modal_deposit_title: "Top up your wallet",
+      select_operator: "Select operator",
+      phone_number: "Mobile Money Phone Number",
+      amount_usd: "Amount to Deposit ($ USD)",
+      btn_confirm_deposit: "Confirm Deposit",
+      withdraw_notice: "Secure withdrawal module coming soon.",
+      invalid_inputs: "Please enter a valid phone number and amount greater than zero.",
+      deposit_ussd_sent: "Payment request sent. Please approve the USSD pop-up on your phone.",
+      deposit_success: "Your account has been credited successfully!",
+      insufficient_balance: "Insufficient balance ({balance}$). You need {cost}$ for this purchase.",
+      confirm_purchase: "Do you confirm payment of {cost}$ for: {service}?",
+      purchase_success: "Congratulations! '{service}' is now active.",
+      transaction_error: "An error occurred during transaction.",
+      vip_status_title: "VIP Premium Account",
+      boost_status_title: "Item Boost Active",
+      days_short: "d",
+      hours_short: "h",
+      min_short: "m",
+      sec_short: "s",
+      expired: "Expired"
+    }
+  };
+
+  // ============================================================
+  // LANGUE & TRADUCTION
+  // ============================================================
+
+  const currentLang = localStorage.getItem("app_lang") || "fr";
+
+  window.getTranslation = function (key, params = {}) {
+    let text = translations[currentLang]?.[key] ?? translations.fr?.[key] ?? key;
+    Object.keys(params).forEach((param) => {
+      text = text.replace(new RegExp(`\\{${param}\\}`, "g"), params[param]);
+    });
+    return text;
+  };
+
+  function applyTranslations() {
+    document.querySelectorAll("[data-i18n]").forEach((element) => {
+      const key = element.getAttribute("data-i18n");
+      element.textContent = window.getTranslation(key);
+    });
+  }
+
+  // ============================================================
+  // TOAST NOTIFICATIONS
+  // ============================================================
+
+  window.showToast = function (message, type = "info") {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    let icon = "fa-info-circle";
+    if (type === "success") icon = "fa-check-circle";
+    if (type === "error") icon = "fa-exclamation-circle";
+
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(-10px)";
+      toast.style.transition = "all 0.3s ease";
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  };
+
+  // ============================================================
+  // CONFIRMATION PERSONNALISÉE
+  // ============================================================
+
+  window.customConfirm = function (message) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById("customConfirm");
+      const messageElement = document.getElementById("confirmMessage");
+      const yesButton = document.getElementById("confirmYesBtn");
+      const noButton = document.getElementById("confirmNoBtn");
+
+      if (!modal || !messageElement || !yesButton || !noButton) {
+        resolve(window.confirm(message));
+        return;
+      }
+
+      messageElement.textContent = message;
+      modal.style.display = "flex";
+
+      const handleYes = () => {
+        modal.style.display = "none";
+        cleanup();
+        resolve(true);
+      };
+
+      const handleNo = () => {
+        modal.style.display = "none";
+        cleanup();
+        resolve(false);
+      };
+
+      const cleanup = () => {
+        yesButton.removeEventListener("click", handleYes);
+        noButton.removeEventListener("click", handleNo);
+      };
+
+      yesButton.addEventListener("click", handleYes);
+      noButton.addEventListener("click", handleNo);
+    });
+  };
+
+  // ============================================================
+  // FIREBASE & WORKER CONFIG
+  // ============================================================
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCY5GYE-TeUEVu6rkYQcwIkELmTM-mPZEc",
+    authDomain: "v-ea-fb4c4.firebaseapp.com",
+    projectId: "v-ea-fb4c4",
+    storageBucket: "v-ea-fb4c4.firebasestorage.app",
+    messagingSenderId: "357462139035",
+    appId: "1:357462139035:web:7aa2ee50350d88a843a63e",
+    measurementId: "G-WEG1X65STP"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const PAYMENT_WORKER_URL = "https://vea-payment-worker.vea-payment.workers.dev";
+  const CREATE_PAYMENT_URL = `${PAYMENT_WORKER_URL}/api/payment`;
+  const CHECK_PAYMENT_URL = `${PAYMENT_WORKER_URL}/api/status`;
+  const PAYMENT_TIMEOUT = 180000;
+
+  // ============================================================
+  // VARIABLES GLOBALES
+  // ============================================================
+
+  let currentUser = null;
+  let currentBalance = 0;
+  let timerInterval = null;
+  let userData = null;
+  let userRoleCollection = "vendeurs_clients";
+  let selectedArticleId = null;
+  let selectedOperator = "airtel";
+  let productsUnsubscribe = null;
+  let boostedProductsData = {};
+
+  // OneSignal (APK) : tout est dans un try/catch, il ne peut plus bloquer la page
+  let oneSignalPret = false;
+
+  function initOneSignalApk(user) {
+    if (oneSignalPret) return;
+    try {
+      OneSignal.initialize("7d28e340-c01d-4780-a97b-f1c862ac7a3c");
+      OneSignal.Notifications.addEventListener("click", (event) => {
+        const launchUrl = event.notification.launchUrl;
+        if (!launchUrl) return;
+        const u = new URL(launchUrl, window.location.href);   // reste dans l'application
+        window.location.href = (u.pathname.split("/").pop() || "acceuil.html") + u.search;
+      });
+      OneSignal.login(user.uid);
+      Promise.resolve(OneSignal.Notifications.requestPermission(true)).catch(() => {});
+      oneSignalPret = true;
+    } catch (err) {
+      console.log("OneSignal indisponible :", err);
+    }
+  }
+
+  // ============================================================
+  // AUTHENTIFICATION
+  // ============================================================
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      currentUser = null;
+      return;
+    }
+
+    currentUser = user;
+    initOneSignalApk(user);
+
+    try {
+      let userSnap = await getDoc(doc(db, "vendeurs_clients", user.uid));
+
+      if (userSnap.exists()) {
+        userRoleCollection = "vendeurs_clients";
+      } else {
+        userSnap = await getDoc(doc(db, "vendeurs", user.uid));
+        if (userSnap.exists()) {
+          userRoleCollection = "vendeurs";
+        }
+      }
+
+      await loadUserData();
+    } catch (error) {
+      console.error("Erreur authentification :", error);
+      window.showToast("Impossible de charger votre compte.", "error");
+    }
+  });
+
+  async function loadUserData() {
+    if (!currentUser) return;
+
+    try {
+      const userRef = doc(db, userRoleCollection, currentUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) return;
+
+      userData = userSnap.data();
+      currentBalance = Number(userData.solde) || 0;
+
+      const balanceElement = document.getElementById("userBalance");
+      if (balanceElement) {
+        balanceElement.textContent = `${currentBalance.toFixed(2)} $`;
+      }
+
+      listenToBoostedArticles();
+    } catch (error) {
+      console.error("Erreur chargement profil :", error);
+    }
+  }
+
+  async function getFirebaseAuthHeaders() {
+    if (!currentUser) throw new Error("Utilisateur non connecté.");
+    const idToken = await currentUser.getIdToken();
+    return {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
+    };
+  }
+
+  // ============================================================
+  // FONCTIONS UTILITAIRES DE PAIEMENT
+  // ============================================================
+
+  function normalizeMobileMoneyPhone(value) {
+    let phone = String(value || "").trim().replace(/\s+/g, "").replace(/-/g, "");
+    if (phone.startsWith("+243")) phone = "0" + phone.substring(4);
+    if (phone.startsWith("243")) phone = "0" + phone.substring(3);
+    return phone;
+  }
+
+  function isValidWonyaPhone(phone) {
+    return /^0\d{9}$/.test(phone);
+  }
+
+async function envoyerPushCustom({
+  idDestinataire,
+  titre,
+  message,
+  lienUrl,
+  soundFile
+}) {
+  const payload = {
+    idDestinataire,
+    titre,
+    message,
+    lienUrl,
+    soundFile
+  };
+
+  try {
+    const response = await fetch(
+      "https://vea-push-worker.vea-payment.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Erreur du Worker");
+    }
+
+    console.log("Notification envoyée :", result);
+
+  } catch (err) {
+    console.error("Erreur d'envoi de la notification :", err);
+  }
+}
+
+async function createRealPayment(params) {
+  const amount = params.amount;
+  const phone = params.phone;
+  const userId = currentUser?.uid || params.userId;
+  const type = params.type;
+  const articleId = params.articleId || null;
+
+  try {
+    const headers = await getFirebaseAuthHeaders();
+    const response = await fetch(CREATE_PAYMENT_URL, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({
+        montant: parseFloat(Number(amount).toFixed(2)), // "montant" au lieu de "amount"
+        mobilemoney: phone,                             // "mobilemoney" au lieu de "phone"
+        devise: "USD",                                  // Devise obligatoire ("USD" ou "CDF")
+        serviceType: type,                              // "serviceType" au lieu de "type"
+        articleId: articleId
+      })
+    });
+
+    const data = await response.json();
+    if (data.success && data.refTransa) {
+      return data;
+    } else {
+      throw new Error(data.error || data.message || "Échec d'initialisation du paiement.");
+    }
+  } catch (error) {
+    console.error("Erreur serveur de paiement :", error);
+    throw error;
+  }
+}
+
+  function extractPaymentStatus(result) {
+    const wonya = result?.wonyaResponse || {};
+    const data = wonya?.data || {};
+    const rawStatus = data?.status || data?.Status || data?.StatutWonya || data?.Statut || data?.statut ||
+                      wonya?.status || wonya?.Status || wonya?.StatutWonya || wonya?.Statut || wonya?.statut ||
+                      result?.status || result?.Status || result?.StatutWonya || result?.Statut || result?.statut || "";
+
+    return String(rawStatus).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  }
+
+async function checkRealPayment(refTransa) {
+  if (!refTransa) throw new Error("Référence de transaction manquante.");
+
+  // 1. Récupération de l'utilisateur Firebase connecté
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("Authentification Firebase manquante. Veuillez vous connecter.");
+  }
+
+  // 2. Génération du token ID pour le Worker
+  const token = await user.getIdToken();
+
+  // 3. Appel sécurisé avec le header Authorization
+  const response = await fetch(`${CHECK_PAYMENT_URL}?ref=${encodeURIComponent(refTransa)}`, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  let result;
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error("Réponse invalide du serveur de statut.");
+  }
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.error || result.message || `Erreur serveur (${response.status})`);
+  }
+
+  // 4. Analyse et formatage du statut
+  const status = extractPaymentStatus(result);
+  const completedStatuses = ["completed", "success", "successful", "succes", "recu", "reussi", "réussi"];
+  const failedStatuses = ["failed", "failure", "cancelled", "canceled", "rejected", "echec", "échoué", "refused", "refuse"];
+  const pendingStatuses = ["pending", "processing", "en_attente", "en attente", "initie", "initiee", "initiated"];
+
+  return {
+    success: true,
+    refTransa: result.refTransa || refTransa,
+    status,
+    completed: completedStatuses.includes(status),
+    failed: failedStatuses.includes(status),
+    pending: pendingStatuses.includes(status),
+    raw: result
+  };
+}
+
+  async function waitForPaymentConfirmation(refTransa) {
+    const startTime = Date.now();
+    while (Date.now() - startTime < PAYMENT_TIMEOUT) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      const status = await checkRealPayment(refTransa);
+
+      if (status.completed) return { success: true, status: "completed", refTransa };
+      if (status.failed) return { success: false, status: "failed", refTransa, raw: status.raw };
+    }
+    return { success: false, status: "timeout", refTransa };
+  }
+
+  // ============================================================
+  // GESTION DES TIMERS ET ARTICLES
+  // ============================================================
+
+  function listenToBoostedArticles() {
+    if (productsUnsubscribe) productsUnsubscribe();
+    if (!currentUser) return;
+
+    const productsQuery = query(collection(db, "produits"), where("vendeurId", "==", currentUser.uid));
+    productsUnsubscribe = onSnapshot(productsQuery, (snapshot) => {
+      boostedProductsData = {};
+      snapshot.forEach((docSnap) => {
+        const produit = docSnap.data();
+        boostedProductsData[docSnap.id] = produit;
+
+        // Pour chaque produit du vendeur : notification 3 jours avant la fin du boost
+        const brut = produit.boostUntil;
+        const dateBoost = brut ? (typeof brut.toDate === "function" ? brut.toDate() : new Date(brut)) : null;
+
+        if (dateBoost && produit.isBoosted === true && produit.vendu !== true) {
+          const diffJours = Math.ceil((dateBoost - new Date()) / (1000 * 60 * 60 * 24));
+
+          // Clé unique : une seule notification par boost, même si la page se recharge
+          const notifKey = `push_sent_3days_${docSnap.id}_${dateBoost.getTime()}`;
+
+          // Si le boost expire dans exactement 3 jours
+          if (diffJours === 3 && !localStorage.getItem(notifKey)) {
+            envoyerPushCustom({
+              idDestinataire: currentUser.uid,
+              titre: "Votre Boost expire bientôt ! ⚡",
+              message: `Le boost pour votre article "${produit.nom}" se termine dans 3 jours. Renouvelez-le pour rester en tête !`,
+              lienUrl: "https://vea-market.duckdns.org/premium.html",
+              soundFile: "notif.mp3"
+            });
+            localStorage.setItem(notifKey, "true");
+          }
+        }
+      });
+      renderTimers();
+    });
+  }
+
+  function renderTimers() {
+    const container = document.getElementById("activeStatusContainer");
+    if (!container) return;
+
+    container.innerHTML = "";
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+
+    const hasVip = Boolean(userData && userData.isPremium && userData.premiumUntil);
+    const activeBoosts = Array.isArray(userData?.boosts) ? userData.boosts : [];
+    if (!hasVip && activeBoosts.length === 0) return;
+
+    const updateClocks = async () => {
+      const currentTime = Date.now();
+      let html = "";
+      const validBoostsForUser = [];
+      let hasBoostsChanged = false;
+
+      // VIP Timer
+      if (hasVip) {
+        const expiry = new Date(userData.premiumUntil).getTime();
+        const totalDuration = 30 * 24 * 60 * 60 * 1000;
+        const diff = expiry - currentTime;
+
+        if (diff > 0) {
+          const pct = Math.max(0, Math.min(100, (diff / totalDuration) * 100));
+          html += `
+            <div class="status-card vip">
+              <div class="status-header">
+                <div class="status-title" style="color:#FFD700;">
+                  <i class="fa-solid fa-crown"></i> ${window.getTranslation("vip_status_title")}
+                </div>
+                <div class="status-timer">${formatTimeLeft(diff)}</div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill gold" style="width:${pct}%"></div>
+              </div>
+            </div>`;
+        }
+      }
+
+      // Boosts Timers
+      for (const boost of activeBoosts) {
+        const expiry = new Date(boost.boostUntil).getTime();
+        const diff = expiry - currentTime;
+        const articleData = boost.articleId ? boostedProductsData[boost.articleId] : null;
+        const isSold = articleData && (articleData.vendu === true || articleData.statut === "vendu");
+
+        if (isSold || diff <= 0) {
+          hasBoostsChanged = true;
+          if (boost.articleId) {
+            try {
+              await updateDoc(doc(db, "produits", boost.articleId), { isBoosted: false, boostUntil: null });
+            } catch (e) { console.error(e); }
+          }
+          continue;
+        }
+
+        validBoostsForUser.push(boost);
+        const totalDuration = 7 * 24 * 60 * 60 * 1000;
+        const pct = Math.max(0, Math.min(100, (diff / totalDuration) * 100));
+        const imgHtml = boost.boostedArticleImage ? `<img src="${boost.boostedArticleImage}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;">` : "";
+
+        html += `
+          <div class="status-card">
+            <div class="status-header" style="display:flex;align-items:center;gap:10px;">
+              ${imgHtml}
+              <div style="flex:1;">
+                <div class="status-title" style="color:#6366F1;">
+                  <i class="fa-solid fa-rocket"></i> ${window.getTranslation("boost_status_title")}
+                </div>
+              </div>
+              <div class="status-timer">${formatTimeLeft(diff)}</div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+      }
+
+      if (hasBoostsChanged) {
+        userData.boosts = validBoostsForUser;
+        try {
+          await updateDoc(doc(db, userRoleCollection, currentUser.uid), {
+            boosts: validBoostsForUser,
+            isBoosted: validBoostsForUser.length > 0
+          });
+        } catch (e) { console.error(e); }
+      }
+
+      container.innerHTML = html;
+    };
+
+    updateClocks();
+    timerInterval = setInterval(updateClocks, 1000);
+  }
+
+  function formatTimeLeft(ms) {
+    if (ms <= 0) return window.getTranslation("expired");
+    const seconds = Math.floor((ms / 1000) % 60);
+    const minutes = Math.floor((ms / (1000 * 60)) % 60);
+    const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+    return `${days}${window.getTranslation("days_short")} ${hours}${window.getTranslation("hours_short")} ${minutes}${window.getTranslation("min_short")} ${seconds}${window.getTranslation("sec_short")}`;
+  }
+
+  // ============================================================
+  // MODALES & ACTIONS UTILISATEUR
+  // ============================================================
+
+  window.openDepositModal = () => {
+    const modal = document.getElementById("depositModal");
+    if (modal) modal.style.display = "flex";
+  };
+
+  window.closeDepositModal = () => {
+    const modal = document.getElementById("depositModal");
+    if (modal) modal.style.display = "none";
+  };
+
+  window.closeBoostArticleModal = () => {
+    const modal = document.getElementById("boostArticleModal");
+    if (modal) modal.style.display = "none";
+    selectedArticleId = null;
+    const button = document.getElementById("confirmBoostArticleBtn");
+    if (button) button.disabled = true;
+  };
+
+  window.selectOperator = (element, operator) => {
+    document.querySelectorAll(".payment-opt").forEach(item => item.classList.remove("active"));
+    if (element) element.classList.add("active");
+    selectedOperator = operator;
+  };
+
+  window.processDeposit = async () => {
+    if (!currentUser) {
+      window.showToast("Vous devez être connecté.", "error");
+      return;
+    }
+
+    const amount = parseFloat(document.getElementById("depositAmount")?.value);
+    const rawPhone = document.getElementById("phoneNumber")?.value;
+    const phone = normalizeMobileMoneyPhone(rawPhone);
+
+    if (!amount || amount <= 0 || !isValidWonyaPhone(phone)) {
+      window.showToast("Entrez un numéro Mobile Money valide et un montant supérieur à zéro.", "error");
+      return;
+    }
+
+    if (amount < 1) {
+      window.showToast("Le montant minimum est de 1 USD.", "error");
+      return;
+    }
+
+    try {
+      window.showToast("Préparation du paiement Mobile Money...", "info");
+      const payment = await createRealPayment({ type: "wallet_deposit", amount, phone });
+      const refTransa = payment.refTransa;
+
+      window.showToast("Demande envoyée. Validez le paiement sur votre téléphone.", "info");
+      const finalStatus = await waitForPaymentConfirmation(refTransa);
+
+      if (finalStatus.success && finalStatus.status === "completed") {
+        window.closeDepositModal();
+        document.getElementById("depositAmount").value = "";
+        document.getElementById("phoneNumber").value = "";
+        await loadUserData();
+        window.showToast(`Paiement confirmé ! Transaction ${refTransa}.`, "success");
+        return;
+      }
+
+      if (finalStatus.status === "failed") {
+        window.showToast("Le paiement Mobile Money a échoué ou a été refusé.", "error");
+        return;
+      }
+      window.showToast("Le paiement est toujours en attente de confirmation.", "info");
+    } catch (error) {
+      window.showToast(error.message || "Impossible de lancer le paiement.", "error");
+    }
+  };
+
+  window.startBoostProcess = async () => {
+    if (!currentUser) {
+      window.showToast("Vous devez être connecté.", "error");
+      return;
+    }
+
+    const listContainer = document.getElementById("articlesSelectList");
+    const confirmButton = document.getElementById("confirmBoostArticleBtn");
+
+    if (!listContainer) return;
+    listContainer.innerHTML = `<div style="color:var(--text-muted); text-align:center;">Chargement de vos articles...</div>`;
+    if (confirmButton) confirmButton.disabled = true;
+
+    document.getElementById("boostArticleModal").style.display = "flex";
+
+    try {
+      const productsQuery = query(collection(db, "produits"), where("vendeurId", "==", currentUser.uid));
+      const querySnapshot = await getDocs(productsQuery);
+      const nowTime = Date.now();
+      const availableArticles = [];
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const articleId = docSnap.id;
+        let boostExpiry = null;
+
+        if (data.boostUntil) {
+          boostExpiry = typeof data.boostUntil.toDate === "function" ? data.boostUntil.toDate().getTime() : new Date(data.boostUntil).getTime();
+        }
+
+        const isCurrentlyBoosted = data.isBoosted === true && Number.isFinite(boostExpiry) && boostExpiry > nowTime;
+        if (!data.vendu && data.statut !== "vendu" && !isCurrentlyBoosted) {
+          availableArticles.push({ id: articleId, ...data });
+        }
+      });
+
+      if (availableArticles.length === 0) {
+        listContainer.innerHTML = `<div style="color:var(--text-muted); text-align:center;">Aucun article disponible à booster.</div>`;
+        return;
+      }
+
+      listContainer.innerHTML = "";
+      availableArticles.forEach((item) => {
+        const imgUrl = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || "");
+        const card = document.createElement("div");
+        card.className = "article-item-card";
+        card.dataset.articleId = item.id;
+        card.dataset.imgUrl = imgUrl;
+
+        card.onclick = () => {
+          document.querySelectorAll(".article-item-card").forEach(el => el.classList.remove("selected"));
+          card.classList.add("selected");
+          selectedArticleId = item.id;
+          if (confirmButton) confirmButton.disabled = false;
+        };
+
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${item.nom || "Article"}">
+          <div class="article-item-info">
+            <div class="article-item-title">${item.nom || "Sans nom"}</div>
+            <div class="article-item-price">${item.prix ?? ""} ${item.devise || "$"}</div>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    } catch (error) {
+      console.error("Erreur récupération articles :", error);
+      listContainer.innerHTML = `<div style="color:var(--accent-red); text-align:center;">Erreur lors du chargement des articles.</div>`;
+    }
+  };
+
+  window.confirmBoostSelectedArticle = async () => {
+    if (!selectedArticleId) return;
+
+    try {
+      const articleIdToBoost = selectedArticleId;
+      const productRef = doc(db, "produits", articleIdToBoost);
+      const productSnap = await getDoc(productRef);
+
+      if (!productSnap.exists()) {
+        window.showToast("Cet article n'existe plus.", "error");
+        window.closeBoostArticleModal();
+        return;
+      }
+
+      const productData = productSnap.data();
+      if (productData.vendu === true || productData.statut === "vendu") {
+        window.showToast("Cet article est déjà vendu.", "error");
+        window.closeBoostArticleModal();
+        return;
+      }
+
+      const selectedCard = document.querySelector(".article-item-card.selected");
+      const imgUrl = selectedCard?.dataset.imgUrl || productData.images?.[0] || productData.image || "";
+
+      window.closeBoostArticleModal();
+      await window.payService("boost_item", 1.50, 7, articleIdToBoost, imgUrl);
+    } catch (error) {
+      console.error("Erreur vérification boost :", error);
+      window.showToast("Impossible de vérifier cet article.", "error");
+    }
+  };
+
+window.closePhonePaymentModal = () => {
+  const modal = document.getElementById("phonePaymentModal");
+  if (modal) modal.style.display = "none";
+};
+
+window.payService = async (serviceType, cost, durationDays, articleId = null, articleImg = null) => {
+  if (!currentUser) {
+    window.showToast("Vous devez être connecté.", "error");
+    return;
+  }
+
+  const serviceName = serviceType === "vip_subscription" ? window.getTranslation("vip_title") : window.getTranslation("item_boost_title");
+  const confirmed = await window.customConfirm(window.getTranslation("confirm_purchase", { cost: Number(cost).toFixed(2), service: serviceName }));
+
+  if (!confirmed) return;
+
+  // Affichage du showToast d'information demandé
+  window.showToast("Payer votre boost avec Orange Money, Airtel Money ou M-Pesa", "info");
+
+  // Ouverture de la modal pour la saisie du numéro
+  const phoneModal = document.getElementById("phonePaymentModal");
+  const phoneInput = document.getElementById("servicePhoneNumber");
+  const confirmBtn = document.getElementById("confirmPhonePaymentBtn");
+
+  if (!phoneModal || !phoneInput || !confirmBtn) return;
+
+  phoneInput.value = "";
+  phoneModal.style.display = "flex";
+
+  // Attente de la validation de la modal par l'utilisateur
+  const rawPhone = await new Promise((resolve) => {
+    const closeBtn = phoneModal.querySelector(".close-btn");
+
+    const handleConfirm = () => {
+      const val = phoneInput.value;
+      cleanup();
+      phoneModal.style.display = "none";
+      resolve(val);
+    };
+
+    const handleClose = () => {
+      cleanup();
+      phoneModal.style.display = "none";
+      resolve(null);
+    };
+
+    const cleanup = () => {
+      confirmBtn.removeEventListener("click", handleConfirm);
+      if (closeBtn) closeBtn.removeEventListener("click", handleClose);
+    };
+
+    confirmBtn.addEventListener("click", handleConfirm);
+    if (closeBtn) closeBtn.addEventListener("click", handleClose);
+  });
+
+  if (rawPhone === null || rawPhone.trim() === "") return;
+
+  const phone = normalizeMobileMoneyPhone(rawPhone);
+  if (!isValidWonyaPhone(phone)) {
+    window.showToast("Numéro Mobile Money invalide.", "error");
+    return;
+  }
+
+  try {
+    window.showToast("Préparation du paiement Mobile Money...", "info");
+    const payment = await createRealPayment({ type: serviceType, amount: Number(cost), phone, articleId });
+    const refTransa = payment.refTransa;
+
+    window.showToast("Demande envoyée. Validez le paiement sur votre téléphone.", "info");
+    const finalStatus = await waitForPaymentConfirmation(refTransa);
+
+    if (finalStatus.success && finalStatus.status === "completed") {
+      await loadUserData();
+      window.showToast(window.getTranslation("purchase_success", { service: serviceName }), "success");
+      return;
+    }
+
+    if (finalStatus.status === "failed") {
+      window.showToast("Le paiement a échoué ou a été refusé.", "error");
+      return;
+    }
+
+    window.showToast("Paiement toujours en attente de confirmation.", "info");
+  } catch (error) {
+    console.error("Erreur achat :", error);
+    window.showToast(error.message || window.getTranslation("transaction_error"), "error");
+  }
+};
+
+  document.addEventListener("DOMContentLoaded", () => {
+    applyTranslations();
+  });
+</script>
+</body>
+</html>

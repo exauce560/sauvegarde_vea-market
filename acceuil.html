@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accueil - Articles</title>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-color: #0f172a;
+      --header-bg: rgba(255, 255, 255, 0.92);
+      --search-bg: rgba(241, 245, 249, 0.92);
+      --card-bg: transparent;
+      --text-muted: #64748b;
+      --border-color: rgba(226, 232, 240, 0.8);
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --text-color: #f8fafc;
+      --header-bg: rgba(15, 23, 42, 0.92);
+      --search-bg: rgba(30, 41, 59, 0.92);
+      --card-bg: transparent;
+      --text-muted: #94a3b8;
+      --border-color: rgba(51, 65, 85, 0.8);
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding-top: 80px;
+      padding-bottom: 30px;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      gap: 10px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .search-bar, .user-location, .profile-btn {
+      pointer-events: auto;
+    }
+
+    .search-bar {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background-color: var(--search-bg);
+      backdrop-filter: blur(8px);
+      border-radius: 25px;
+      padding: 8px 14px;
+      gap: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-bar svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-muted);
+    }
+
+    .search-bar input {
+      border: none;
+      background: transparent;
+      width: 100%;
+      outline: none;
+      font-size: 0.9rem;
+      color: var(--text-color);
+    }
+
+    .user-location {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-color);
+      text-transform: uppercase;
+      white-space: nowrap;
+      background: var(--header-bg);
+      backdrop-filter: blur(8px);
+      padding: 6px 10px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .user-location:active {
+      transform: scale(0.95);
+      opacity: 0.8;
+    }
+
+    .user-location svg {
+      width: 18px;
+      height: 18px;
+      stroke: #0284c7;
+      transition: transform 0.3s ease;
+    }
+
+    .user-location.refreshing svg {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .profile-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--text-muted);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--header-bg);
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+    }
+
+    .profile-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .profile-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .unread-badge {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      width: 10px;
+      height: 10px;
+      background-color: #ef4444;
+      border: 2px solid var(--bg-color);
+      border-radius: 50%;
+      z-index: 10;
+    }
+
+    .search-tabs {
+      display: none;
+      justify-content: space-around;
+      background: var(--header-bg);
+      backdrop-filter: blur(8px);
+      padding: 8px 12px;
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-tabs.active {
+      display: flex;
+    }
+
+    .tab-btn {
+      position: relative;
+      border: none;
+      background: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 12px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 600px) {
+      .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+    }
+
+    .product-card {
+      background: var(--card-bg);
+      border: none;
+      border-radius: 16px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+    }
+
+/* Style pour le Boost Compte (Doré / Gold) */
+.product-card.card-boosted-account .image-container {
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.4);
+}
+
+/* Style pour le Boost Article individuel (Bleu / Cyan Neon) */
+.product-card.card-boosted-item .image-container {
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.5);
+  border: 1px solid rgba(2, 132, 199, 0.6);
+}
+
+/* Badge bleu spécifique pour l'article boosté */
+.badge-boost-item {
+  position: absolute;
+  top: 36px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  border-radius: 50%;
+  color: #ffffff;
+  z-index: 6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.badge-boost-item svg {
+  width: 13px;
+  height: 13px;
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+
+.offline-banner {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  width: calc(100% - 24px);
+  max-width: 430px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 15px;
+
+  background: rgba(15, 23, 42, 0.96);
+  color: #fff;
+
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+
+  z-index: 9999;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    transform 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.offline-banner.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.offline-icon {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.offline-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.offline-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.offline-text strong {
+  font-size: 0.88rem;
+}
+
+.offline-text span {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+    .badge-pro {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: #fef08a;
+      color: #854d0e;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 6px;
+      margin-left: 4px;
+    }
+
+    .image-container {
+      position: relative;
+      width: 100%;
+      padding-top: 130%;
+      border-radius: 16px;
+      overflow: hidden;
+      background-color: var(--border-color);
+    }
+
+    .image-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+/* Badge doré pour le compte boosté */
+.badge-boost {
+  position: absolute;
+  top: 36px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-radius: 50%;
+  color: #ffffff;
+  z-index: 6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.badge-boost svg {
+  width: 13px;
+  height: 13px;
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+    .country-flag-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .country-flag-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: static;
+    }
+
+    .image-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 4;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      padding: 4px 8px;
+      border-radius: 10px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .dot.active {
+      background-color: #ffffff;
+      transform: scale(1.2);
+    }
+
+    .shop-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      max-width: 65%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 5;
+    }
+
+    .fav-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      top: auto;
+      right: auto;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #ffffff;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .fav-btn:active {
+      transform: scale(0.85);
+    }
+
+    .fav-btn .svg-1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fav-btn .svg-2 {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #22c55e;
+      stroke: #22c55e;
+      fill: #22c55e;
+    }
+
+    .fav-btn.active .svg-1 {
+      display: none;
+    }
+
+    .fav-btn.active .svg-2 {
+      display: flex;
+    }
+
+    .fav-count {
+      display: inline-block !important;
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background-color: #64748b;
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: bold;
+      border-radius: 50%;
+      min-width: 18px;
+      height: 18px;
+      line-height: 18px;
+      text-align: center;
+      padding: 0 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.2s ease;
+      z-index: 2;
+    }
+
+    .fav-btn.active .fav-count {
+      background-color: #22c55e;
+    }
+
+    .product-info {
+      padding: 8px 4px 4px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .product-type {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .product-price {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--text-color);
+    }
+
+    .product-stock {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .ad-toast-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(4, 8, 20, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .ad-toast-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ad-toast-card {
+      background: linear-gradient(145deg, #0b1329, #070a16);
+      border: 1.5px solid rgba(234, 179, 8, 0.4);
+      width: 92%;
+      max-width: 440px;
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 179, 8, 0.15);
+      transform: translateY(30px) scale(0.92);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      color: #f8fafc;
+      text-align: left;
+    }
+
+    .ad-toast-overlay.show .ad-toast-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .ad-close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .ad-close-btn:hover {
+      background: rgba(234, 179, 8, 0.2);
+      color: #eab308;
+    }
+
+    .ad-close-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
+
+    .ad-header-flex {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .ad-icon-container {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4);
+      flex-shrink: 0;
+      animation: pulse-gold 2s infinite;
+    }
+
+    @keyframes pulse-gold {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.5); }
+      70% { transform: scale(1.04); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+    }
+
+    .ad-icon-container svg {
+      width: 28px;
+      height: 28px;
+      stroke: #070a16;
+      fill: #070a16;
+    }
+
+    .ad-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .ad-title span {
+      color: #eab308;
+    }
+
+    .ad-features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 18px 0;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ad-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .ad-feature-item svg {
+      width: 16px;
+      height: 16px;
+      stroke: #22c55e;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .ad-payment-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #4ade80;
+      background: rgba(34, 197, 94, 0.1);
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .ad-payment-badge svg {
+      width: 14px;
+      height: 14px;
+      stroke: #4ade80;
+    }
+
+    .ad-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ad-btn-primary {
+      flex: 1;
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      color: #070a16;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.2s, filter 0.2s;
+      box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+      text-align: center;
+    }
+
+    .ad-btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .ad-btn-secondary {
+      background: transparent;
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ad-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .add-product-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 54px;
+      height: 54px;
+      background-color: #0284c7;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+      text-decoration: none;
+      z-index: 1001;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .add-product-btn:hover {
+      background-color: #0369a1;
+      transform: scale(1.05);
+    }
+
+    .add-product-btn svg {
+      width: 28px;
+      height: 28px;
+      stroke: #ffffff;
+    }
+    .sold-overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(15, 23, 42, 0.45); z-index: 7; pointer-events: none; }
+.sold-overlay svg { width: 104px; height: 34px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)); }
+.product-card.is-sold .image-container img { filter: grayscale(0.7); }
+/* Toast de connexion (5 secondes) */
+.reseau-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 160%);
+  max-width: min(92vw, 420px);
+  background: rgba(15, 23, 42, 0.96);
+  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border-left: 4px solid #0284c7;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  z-index: 3000;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+.reseau-toast.show { transform: translate(-50%, 0); opacity: 1; }
+.reseau-toast.warn { border-left-color: #f59e0b; }
+.reseau-toast.err  { border-left-color: #ef4444; }
+.reseau-toast.ok   { border-left-color: #22c55e; }
+ * {
+    -webkit-tap-highlight-color: transparent;
+ }
+  </style>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
+    <!-- Activation du mode plein écran sur Safari iOS -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vea Market">
+
+<!-- Icône pour l'écran d'accueil iOS -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Fichier manifest -->
+<link rel="manifest" href="manifest.json">
+
+</head>
+<body>
+
+  <header>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Recherche..." oninput="handleSearch()">
+    </div>
+
+    <button class="user-location" id="refreshLocationBtn" title="Actualiser la localisation et les produits">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+      </svg>
+      <span id="cityName">---</span>
+    </button>
+
+    <a href="#" class="profile-btn" id="profileBtn" aria-label="Paramètres">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span class="unread-badge" id="profileBadge" style="display: none;"></span>
+    </a>
+  </header>
+
+  <div class="search-tabs" id="searchTabs">
+    <button class="tab-btn active" onclick="setSearchFilter('all', this)">Tout</button>
+    <button class="tab-btn" onclick="setSearchFilter('produits', this)">Produits</button>
+    <button class="tab-btn" onclick="setSearchFilter('boutiques', this)">Boutiques</button>
+    <button class="tab-btn" onclick="setSearchFilter('villes', this)">Adresses</button>
+    <button class="tab-btn" onclick="setSearchFilter('nouveautes', this)">
+      Nouveautés
+      <span class="unread-badge" id="tabBadge" style="display: none;"></span>
+    </button>
+  </div>
+
+  <main class="grid-container" id="productsGrid"></main>
+  <div class="reseau-toast" id="reseauToast" role="status" aria-live="polite"></div>
+
+  <div class="ad-toast-overlay" id="adToastOverlay">
+    <div class="ad-toast-card">
+      <button class="ad-close-btn" onclick="closeAdToast()" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="ad-header-flex">
+        <div class="ad-icon-container">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div>
+          <div class="ad-title">Accédez au Mode <span>Premium</span></div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 2px;">Boostez vos performances de vente</div>
+        </div>
+      </div>
+
+      <div class="ad-features-list">
+        <div class="ad-feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <div><strong>5$ / mois :</strong> Pour booster tous vos articles, obtenir un badge doré certifié & un support WhatsApp 24/7.</div>
+        </div>
+        <div class="ad-feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <div><strong>1.5$ :</strong> Pour booster un article en particulier selon vos besoins.</div>
+        </div>
+      </div>
+
+      <div class="ad-payment-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        Paiement 100% fiable et facile via Airtel Money, Orange Money ou M-Pesa.
+      </div>
+
+      <div class="ad-actions">
+        <button class="ad-btn-primary" onclick="window.location.href='premium.html'">Passer au Premium</button>
+        <button class="ad-btn-secondary" onclick="closeAdToast()">Plus tard</button>
+      </div>
+    </div>
+  </div>
+
+  <a href="add-product.html" class="add-product-btn" id="addProductBtn" style="display: none;" aria-label="Ajouter un produit">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  </a>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { initializeFirestore, collection, query, orderBy, where, limit, startAfter, getDocs, getDocsFromServer, doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import OneSignal from "onesignal-cordova-plugin";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY5GYE-TeUEVu6rkYQcwIkELmTM-mPZEc",
+      authDomain: "v-ea-fb4c4.firebaseapp.com",
+      projectId: "v-ea-fb4c4",
+      storageBucket: "v-ea-fb4c4.firebasestorage.app",
+      messagingSenderId: "357462139035",
+      appId: "1:357462139035:web:7aa2ee50350d88a843a63e",
+      measurementId: "G-WEG1X65STP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+    const auth = getAuth(app);
+
+    const storedTheme = localStorage.getItem("app_theme") || "light";
+    document.documentElement.setAttribute("data-theme", storedTheme);
+
+    const countryCodeMap = {
+      "congo": "cg",
+      "république démocratique du congo": "cd",
+      "rdc": "cd",
+      "congo-kinshasa": "cd",
+      "congo kinshasa": "cd",
+      "kinshasa": "cd",
+      "goma": "cd",
+      "burundi": "bi",
+      "bujumbura": "bi",
+      "kigali": "rw",
+      "france": "fr",
+      "belgique": "be",
+      "canada": "ca",
+      "cameroun": "cm",
+      "côte d'ivoire": "ci",
+      "cote d'ivoire": "ci",
+      "sénégal": "sn",
+      "senegal": "sn",
+      "états-unis": "us",
+      "usa": "us"
+    };
+
+    const i18n = {
+      fr: { search: "Recherche...", empty: "Aucun article trouvé" },
+      en: { search: "Search...", empty: "No products found" },
+      ln: { search: "Luka...", empty: "Eloko moko te emonani" },
+      sw: { search: "Tafuta...", empty: "Hakuna bidhaa iliyopatikana" }
+    };
+
+    let allProducts = [];
+    let currentFeedProducts = [];
+    const FEED_SIZE = 20;
+    let lastFeedBatchIds = new Set();
+    let currentUser = null;
+    let userFavorites = [];
+    let searchHistory = [];
+    let userRole = "acheteur";
+    let userCity = "";
+    let userProvince = "";
+    let userCountry = "";
+    let userPreferencesCache = [];
+    let activeFilter = "all";
+
+    const storedLang = localStorage.getItem("app_lang") || "fr";
+    let currentI18n = i18n[storedLang] || i18n.fr;
+    let searchDebounceTimeout = null;
+    // ==========================================
+    // 🧠 MÉMOIRE DU FEED VEA
+    // ==========================================
+
+    let feedSeenProducts = {};
+
+    const RECENTLY_SEEN_TIME = 24 * 60 * 60 * 1000;
+    const LONG_AGO_TIME = 7 * 24 * 60 * 60 * 1000;
+
+    let feedSeenSaveTimeout = null;
+    let userCollectionName = "acheteurs";
+
+async function envoyerPushCustom({
+  idDestinataire,
+  titre,
+  message,
+  lienUrl,
+  soundFile
+}) {
+  const payload = {
+    idDestinataire,
+    titre,
+    message,
+    lienUrl,
+    soundFile
+  };
+
+  try {
+    const response = await fetch(
+      "https://vea-push-worker.vea-payment.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const result = await response.json();
+
+
+    if (!response.ok) {
+      throw new Error(result.error || "Erreur du Worker");
+    }
+
+  } catch (err) {
+    console.error("Erreur d'envoi de la notification :", err);
+  }
+}
+if (currentUser && !localStorage.getItem("welcome_pushed_" + currentUser.uid)) {
+  envoyerPushCustom({
+    idDestinataire: currentUser.uid,
+    titre: "Bienvenue sur Vea Market ! 👤",
+    message: `Ravi de vous revoir ! Découvrez les derniers articles disponibles dans votre région.`,
+    lienUrl: "acceuil.html",
+    soundFile: "notif.mp3"
+  });
+
+  // Marque la notification comme envoyée pour cet utilisateur
+  localStorage.setItem("welcome_pushed_" + currentUser.uid, "true");
+}
+
+// ============================================================
+// ONESIGNAL (APK Android) : plugin natif, tout est protégé par try/catch
+// ============================================================
+let oneSignalPret = false;
+
+function initOneSignalApk(user) {
+  if (oneSignalPret) return;
+  try {
+    OneSignal.initialize("7d28e340-c01d-4780-a97b-f1c862ac7a3c");
+
+    // Notification reçue pendant que l'application est ouverte : son personnalisé
+    OneSignal.Notifications.addEventListener("foregroundWillDisplay", () => {
+      new Audio("notif.mp3").play().catch(() => {});
+    });
+
+    // Clic sur une notification : on reste dans l'application
+    OneSignal.Notifications.addEventListener("click", (event) => {
+      const launchUrl = event.notification.launchUrl;
+      if (!launchUrl) return;
+      const u = new URL(launchUrl, window.location.href);
+      window.location.href = (u.pathname.split("/").pop() || "acceuil.html") + u.search;
+    });
+
+    OneSignal.login(user.uid);
+    Promise.resolve(OneSignal.Notifications.requestPermission(true)).catch(() => {});
+    oneSignalPret = true;
+  } catch (err) {
+    console.log("OneSignal indisponible :", err);
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+  currentUser = user;
+
+  initOneSignalApk(user);
+
+    // Le profil se charge en parallèle. Les articles n'attendent plus que 2,5 s au maximum
+  // (le profil enregistré sur l'appareil sert à personnaliser en attendant).
+  const profil = chargerProfil(user);
+  await Promise.race([profil, new Promise((r) => setTimeout(r, 2500))]);
+  document.getElementById("searchInput").placeholder = currentI18n.search;
+  loadProducts(userPreferencesCache);
+});
+
+
+function scheduleFeedSeenSave() {
+
+    clearTimeout(feedSeenSaveTimeout);
+
+    feedSeenSaveTimeout = setTimeout(async () => {
+
+        if (!currentUser) return;
+
+        try {
+
+            await updateDoc(
+                doc(db, userCollectionName, currentUser.uid),
+                {
+                    feedSeenProducts
+                }
+            );
+
+            console.log("🧠 Historique du feed sauvegardé");
+
+        } catch (error) {
+
+            console.error(
+                "Erreur sauvegarde historique feed :",
+                error
+            );
+        }
+
+    }, 3000);
+}
+
+// ==========================================
+// 🧠 SCORE INTELLIGENT DU FEED VEA
+// ==========================================
+
+function calculateFeedScore(product) {
+
+    let score = 0;
+
+    const pType = String(product.type || "").toLowerCase().trim();
+    const pName = String(product.nom || "").toLowerCase().trim();
+
+    const pCity = String(product.city || "").toLowerCase().trim();
+    const pProvince = String(product.province || "").toLowerCase().trim();
+    const pCountry = String(product.country || "").toLowerCase().trim();
+
+    const city = String(userCity || "").toLowerCase().trim();
+    const province = String(userProvince || "").toLowerCase().trim();
+    const country = String(userCountry || "").toLowerCase().trim();
+
+    // ==========================================
+    // 🚀 BOOST COMPTE +1000
+    // ==========================================
+
+        // Le boost compte à fond tant que l'article n'a pas été vu récemment.
+    // Après l'avoir vu, il ne garde que 20 % de son bonus et laisse la place aux autres.
+    const vuAvant = feedSeenProducts[product.id];
+    const dejaVuRecemment = !!vuAvant && (Date.now() - vuAvant) < RECENTLY_SEEN_TIME;
+    const facteurBoost = dejaVuRecemment ? 0.2 : 1;
+
+    if (product.isAccountBoosted) {
+        score += 1000 * facteurBoost;
+    }
+
+    // ==========================================
+    // 🚀 BOOST ARTICLE +700
+    // ==========================================
+
+    if (product.isItemBoosted) {
+        score += 700 * facteurBoost;
+    }
+
+    // ==========================================
+    // ❤️ PRÉFÉRENCE +100
+    // ==========================================
+
+    let preferenceMatch = false;
+
+    userPreferencesCache.forEach(pref => {
+
+        const preference =
+            String(pref).toLowerCase().trim();
+
+        if (!preference) return;
+
+        if (
+            pType === preference ||
+            pType.includes(preference) ||
+            preference.includes(pType) ||
+            pName.includes(preference)
+        ) {
+            preferenceMatch = true;
+        }
+    });
+
+    if (preferenceMatch) {
+        score += 100;
+    }
+
+    // ==========================================
+    // 📍 VILLE +80
+    // ==========================================
+
+    if (city && pCity === city) {
+        score += 80;
+    }
+
+    // ==========================================
+    // 🏙️ PROVINCE +50
+    // ==========================================
+
+    if (province && pProvince === province) {
+        score += 50;
+    }
+
+    // ==========================================
+    // 🌍 PAYS +30
+    // ==========================================
+
+    if (country && pCountry === country) {
+        score += 30;
+    }
+
+    // ==========================================
+    // 🔎 HISTORIQUE DE RECHERCHE
+    // ==========================================
+
+    searchHistory.forEach(term => {
+
+        const searchTerm =
+            String(term).toLowerCase().trim();
+
+        if (!searchTerm) return;
+
+        if (
+            pName.includes(searchTerm) ||
+            pType.includes(searchTerm)
+        ) {
+            score += 2;
+        }
+    });
+
+    // ==========================================
+    // 🧠 HISTORIQUE DE VUE
+    // ==========================================
+
+    const seenAt = feedSeenProducts[product.id];
+
+    if (!seenAt) {
+
+        // 🆕 JAMAIS VU
+        score += 300;
+
+    } else {
+
+        const timeSinceSeen =
+            Date.now() - seenAt;
+
+        if (timeSinceSeen < RECENTLY_SEEN_TIME) {
+
+            // 👀 VU RÉCEMMENT
+            score -= 500;
+
+        } else if (timeSinceSeen < LONG_AGO_TIME) {
+
+            // 🕐 VU IL Y A LONGTEMPS
+            score -= 50;
+        }
+    }
+
+    return score;
+}
+
+document
+.getElementById("refreshLocationBtn")
+.addEventListener("click", async () => {
+
+    const btn =
+        document.getElementById(
+            "refreshLocationBtn"
+        );
+
+    if (
+        btn.classList.contains("refreshing")
+    ) {
+        return;
+    }
+
+    btn.classList.add("refreshing");
+
+    try {
+
+        // Sauvegarde immédiatement
+        // ce qui vient d'être vu
+
+        if (currentUser) {
+
+             updateDoc(
+                doc(
+                    db,
+                    userCollectionName,
+                    currentUser.uid
+                ),
+                {
+                    feedSeenProducts
+                }
+            ).catch(() => {});   // sans attendre : il se synchronisera au retour du réseau
+        }
+
+        // 🔥 NOUVEAU FEED
+
+        await loadProducts(
+            userPreferencesCache,
+            true
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Erreur actualisation :",
+            error
+        );
+
+    } finally {
+
+        setTimeout(() => {
+
+            btn.classList.remove(
+                "refreshing"
+            );
+
+        }, 700);
+    }
+});
+
+
+
+
+    function checkAndShowAd(userData) {
+      const lastAdShown = userData.lastAdShown ? new Date(userData.lastAdShown) : null;
+      const now = new Date();
+
+      let shouldShow = false;
+      if (!lastAdShown) {
+        shouldShow = true;
+      } else {
+        const diffTime = Math.abs(now - lastAdShown);
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        if (diffDays >= 3.5) {
+          shouldShow = true;
+        }
+      }
+
+      if (shouldShow) {
+        setTimeout(() => {
+          document.getElementById("adToastOverlay").classList.add("show");
+          updateLastAdShownTime();
+        }, 1200);
+      }
+    }
+
+    async function updateLastAdShownTime() {
+      if (!currentUser) return;
+      try {
+        let collectionName = userRole === "vendeurs" ? "vendeurs" : "vendeurs_clients";
+        await updateDoc(doc(db, collectionName, currentUser.uid), {
+          lastAdShown: new Date().toISOString()
+        });
+      } catch(err) {
+        console.error("Erreur maj pub:", err);
+      }
+    }
+
+    window.closeAdToast = function() {
+      document.getElementById("adToastOverlay").classList.remove("show");
+    };
+
+
+
+function buildPersonalizedFeed(products) {
+
+    const getDate = (p) => {
+        if (!p.createdAt) return 0;
+        return p.createdAt.toDate
+            ? p.createdAt.toDate().getTime()
+            : new Date(p.createdAt).getTime();
+    };
+
+    const comparer = (a, b) => {
+        if (b.feedScore !== a.feedScore) return b.feedScore - a.feedScore;
+        return getDate(b) - getDate(a);
+    };
+
+    const classes = products
+        .map(product => ({
+            ...product,
+            feedScore: calculateFeedScore(product)
+        }))
+        .sort(comparer);
+
+    // Une boutique boostée ne doit pas occuper tout le haut du fil :
+    // chaque article supplémentaire de la même boutique perd 150 points
+    const parBoutique = {};
+    classes.forEach((p) => {
+        if (!p.isAccountBoosted || !p.vendeurId) return;
+        const n = parBoutique[p.vendeurId] || 0;
+        p.feedScore -= 150 * n;
+        parBoutique[p.vendeurId] = n + 1;
+    });
+
+    return classes.sort(comparer);
+}
+
+
+function markProductAsSeen(productId) {
+  if (!productId || !currentUser) return;
+
+  feedSeenProducts[productId] = Date.now();
+
+  scheduleFeedSeenSave();
+}
+
+// ==========================================
+// ⚡ CHARGEMENT RAPIDE + FIL CONTINU
+// ==========================================
+const PREMIERE_PAGE = 40;        // affichée tout de suite
+const PAGES_SUIVANTES = 150;     // chargées ensuite, en arrière-plan
+const VENDEUR_CACHE_MS = 3 * 60 * 1000;
+const DOC_ROOT = `projects/${firebaseConfig.projectId}/databases/(default)/documents`;
+const REST_URL = `https://firestore.googleapis.com/v1/${DOC_ROOT}`;
+const CHAMPS_VENDEUR = ["shopName", "displayName", "nom", "address", "city", "ville", "province", "country", "pays", "isPremium", "premiumUntil"];
+
+let rawProducts = [];
+let idsCharges = new Set();
+let curseurPage = null;
+let pagesTerminees = false;
+let chargementEnCours = false;
+let sessionChargement = 0;
+let aDesNouveautes = false;
+const vendeurCache = new Map();
+let vendeurCacheT = Date.now();
+
+// Cache des vendeurs (3 min) : évite de les relire à chaque visite
+try {
+  const c = JSON.parse(localStorage.getItem("vea_vendeurs_cache"));
+  if (c && Date.now() - c.t < VENDEUR_CACHE_MS) {
+    vendeurCacheT = c.t;
+    Object.entries(c.d).forEach(([k, v]) => vendeurCache.set(k, v));
+  }
+} catch (_) {}
+
+function sauverCacheVendeurs() {
+  try { localStorage.setItem("vea_vendeurs_cache", JSON.stringify({ t: vendeurCacheT, d: Object.fromEntries(vendeurCache) })); } catch (_) {}
+}
+
+function lireValeur(v) {
+  if (!v) return null;
+  if ("stringValue" in v) return v.stringValue;
+  if ("booleanValue" in v) return v.booleanValue;
+  if ("integerValue" in v) return Number(v.integerValue);
+  if ("doubleValue" in v) return v.doubleValue;
+  if ("timestampValue" in v) return v.timestampValue;
+  if ("arrayValue" in v) return (v.arrayValue.values || []).map(lireValeur);
+  if ("mapValue" in v) return lireChamps(v.mapValue.fields);
+  return null;
+}
+const lireChamps = (f = {}) => Object.fromEntries(Object.entries(f).map(([k, x]) => [k, lireValeur(x)]));
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const dateMs = (p) => !p.createdAt ? 0 : (p.createdAt.toDate ? p.createdAt.toDate().getTime() : new Date(p.createdAt).getTime());
+
+// Les vendeurs sont lus UNE fois chacun, sans leur photo (en base64 elle pèse très lourd)
+async function chargerVendeurs(ids) {
+  const manquants = ids.filter((id) => !vendeurCache.has(id));
+  if (!manquants.length || !currentUser) return;
+  try {
+    const jeton = await currentUser.getIdToken();
+    for (let i = 0; i < manquants.length; i += 50) {
+      const lot = manquants.slice(i, i + 50);
+      const documents = lot.flatMap((id) => [`${DOC_ROOT}/vendeurs/${id}`, `${DOC_ROOT}/vendeurs_clients/${id}`]);
+      const r = await fetch(`${REST_URL}:batchGet`, {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + jeton, "Content-Type": "application/json" },
+        body: JSON.stringify({ documents, mask: { fieldPaths: CHAMPS_VENDEUR } })
+      });
+      if (!r.ok) throw new Error("batchGet " + r.status);
+      const trouves = {};
+      (await r.json()).forEach((x) => {
+        if (!x.found) return;
+        const parts = x.found.name.split("/");
+        const id = parts.pop(), col = parts.pop();
+        if (!trouves[id] || col === "vendeurs") trouves[id] = lireChamps(x.found.fields);
+      });
+      lot.forEach((id) => vendeurCache.set(id, trouves[id] || null));
+    }
+    sauverCacheVendeurs();
+  } catch (e) { console.error("Erreur vendeurs :", e); }
+}
+
+// Articles boostés + articles des comptes Premium : toujours chargés en premier
+async function chargerPrioritaires(serveur) {
+  const lire = serveur ? getDocsFromServer : getDocs;
+  try {
+    const [boostes, vV, vC] = await Promise.all([
+      lire(query(collection(db, "produits"), where("isBoosted", "==", true))),
+      lire(query(collection(db, "vendeurs"), where("isPremium", "==", true))),
+      lire(query(collection(db, "vendeurs_clients"), where("isPremium", "==", true)))
+    ]);
+    const idsPremium = [];
+    [vV, vC].forEach((s) => s.docs.forEach((d) => {
+      const { photoUrl, photo, ...data } = d.data();
+      vendeurCache.set(d.id, data);
+      idsPremium.push(d.id);
+    }));
+    const docs = [...boostes.docs];
+    for (let i = 0; i < idsPremium.length; i += 30) {
+      const s = await lire(query(collection(db, "produits"), where("vendeurId", "in", idsPremium.slice(i, i + 30))));
+      docs.push(...s.docs);
+    }
+    return docs;
+  } catch (e) { console.error("Erreur prioritaires :", e); return []; }
+}
+
+async function chargerPage(taille, serveur, session) {
+  const contraintes = [orderBy("createdAt", "desc")];
+  if (curseurPage) contraintes.push(startAfter(curseurPage));
+  const q = query(collection(db, "produits"), ...contraintes, limit(taille));
+  const snap = serveur ? await getDocsFromServer(q) : await getDocs(q);
+  if (session !== sessionChargement) return [];   // un nouveau chargement a démarré
+  if (snap.metadata.fromCache && snap.docs.length === 0) throw new Error("reseau-indisponible");
+  if (snap.docs.length < taille) pagesTerminees = true;
+  if (snap.docs.length) curseurPage = snap.docs[snap.docs.length - 1];
+  return snap.docs;
+}
+
+// Même enrichissement qu'avant (vendeur, vendu, boosts), mais sans relire le vendeur pour chaque produit
+async function preparer(docs) {
+  const produits = [];
+  for (const d of docs) {
+    if (idsCharges.has(d.id)) continue;      // déjà pris (boosté, Premium ou page) : pas de doublon
+    idsCharges.add(d.id);
+    produits.push({ id: d.id, ...d.data() });
+  }
+  await chargerVendeurs([...new Set(produits.map((p) => p.vendeurId).filter(Boolean))]);
+  const now = new Date();
+
+  produits.forEach((product) => {
+    if (product.createdAt) {
+      const created = product.createdAt.toDate ? product.createdAt.toDate() : new Date(product.createdAt);
+      if (Math.abs(now - created) / 36e5 < 24) aDesNouveautes = true;
+    }
+    product.isSold = product.vendu === true || product.statut === "vendu";
+
+    const vData = product.vendeurId ? vendeurCache.get(product.vendeurId) : null;
+    if (vData) {
+      const vAddr = vData.address || {};
+      product.shopName = vData.shopName || vData.displayName || vData.nom || "Boutique";
+      product.city = vAddr.city || vData.city || vData.ville || "";
+      product.province = vAddr.province || vData.province || "";
+      product.country = vAddr.country || vData.country || vData.pays || "";
+      product.premiumUntil = vData.premiumUntil || null;
+      product.vendeurIsPremium = vData.isPremium === true && !!vData.premiumUntil && new Date(vData.premiumUntil) > now;
+    } else if (product.vendeurId) {
+      product.shopName = "Boutique";
+    }
+
+    product.isItemBoosted = product.isBoosted === true && !!product.boostUntil && new Date(product.boostUntil) > now;
+    product.isAccountBoosted = product.vendeurIsPremium === true;
+    product.hasBoostStyle = product.isItemBoosted || product.isAccountBoosted;
+
+    let visible = false;
+    if (product.hasBoostStyle) {
+      const memePays = userCountry && product.country && userCountry.toLowerCase().trim() === product.country.toLowerCase().trim();
+      visible = memePays ? true : Math.random() < 0.01;
+    }
+    product.isBoostedActive = visible;
+  });
+  return produits;
+}
+
+// Le fil continue à la suite : chaque lot est classé, puis ajouté
+function ajouterAuFil(produits) {
+  const classes = buildPersonalizedFeed(produits);
+  currentFeedProducts.push(...classes);
+  rawProducts.push(...classes);
+  allProducts = [...rawProducts].sort((a, b) => b.feedScore - a.feedScore || dateMs(b) - dateMs(a));
+}
+
+function majBadges() {
+  if (!aDesNouveautes) return;
+  const pb = document.getElementById("profileBadge"), tb = document.getElementById("tabBadge");
+  if (pb) pb.style.display = "block";
+  if (tb) tb.style.display = "block";
+}
+
+async function loadProducts(userPreferences, forceRefresh = false) {
+  const session = ++sessionChargement;
+  const grid = document.getElementById("productsGrid");
+  // On garde l'ancien contenu : rien ne disparaît tant que le nouveau n'est pas arrivé
+  const ancien = { rawProducts, allProducts, currentFeedProducts, idsCharges, curseurPage, pagesTerminees };
+  let minuteurLent = null;
+  try {
+    chargementEnCours = true;
+    rawProducts = []; allProducts = []; currentFeedProducts = [];
+    idsCharges = new Set(); curseurPage = null; pagesTerminees = false;
+    if (forceRefresh) { vendeurCache.clear(); vendeurCacheT = Date.now(); }
+    if (!grid.children.length) renderProducts(currentFeedProducts);   // "Chargement..."
+
+    // Après 4 s sans réponse : on prévient (les articles enregistrés restent affichés)
+    minuteurLent = setTimeout(() => { if (session === sessionChargement) signalerReseau("lent"); }, 4000);
+
+    // 1) Première page + articles prioritaires
+    const [docs, prioritaires] = await Promise.all([chargerPage(PREMIERE_PAGE, forceRefresh, session), chargerPrioritaires(forceRefresh)]);
+    clearTimeout(minuteurLent);
+    if (session !== sessionChargement) return;
+    ajouterAuFil(await preparer([...prioritaires, ...docs]));
+    if (session !== sessionChargement) return;
+    majBadges();
+    sauverFilCache();               // gardé sur l'appareil pour la prochaine fois
+    appliquerFilFrais(forceRefresh);
+    signalerReseau("ok");
+
+    // 2) Le reste du catalogue arrive en arrière-plan
+    while (!pagesTerminees && session === sessionChargement) {
+      const suite = await preparer(await chargerPage(PAGES_SUIVANTES, forceRefresh, session));
+      if (session !== sessionChargement) return;
+      ajouterAuFil(suite);
+      majBadges();
+      const term = document.getElementById("searchInput").value.toLowerCase().trim();
+      if (activeFilter === "all" && !term) remplirEcran(); else applyFilters();
+    }
+    if (session === sessionChargement) sauverFilCache();
+  } catch (e) {
+    clearTimeout(minuteurLent);
+    console.error("Erreur chargement articles:", e);
+    if (session === sessionChargement) {
+      // Échec réseau : on remet ce qui était affiché, rien ne disparaît
+      if (rawProducts.length === 0 && ancien.currentFeedProducts.length > 0) {
+        ({ rawProducts, allProducts, currentFeedProducts, idsCharges, curseurPage, pagesTerminees } = ancien);
+      }
+      besoinRafraichir = true;       // on recharge dès que le réseau revient
+      signalerReseau(navigator.onLine ? "lent" : "coupe");
+    }
+  } finally {
+    if (session === sessionChargement) {
+      chargementEnCours = false;
+      if (!grid.children.length) {
+        grid.innerHTML = `<div class="empty-state">${besoinRafraichir
+          ? "Pas de connexion. Les articles s'afficheront dès le retour du réseau."
+          : currentI18n.empty}</div>`;
+      }
+    }
+  }
+}
+
+// ==========================================
+// 🖼️ AFFICHAGE PAR LOTS (défilement infini)
+// ==========================================
+let renderSource = [];
+let renderIndex = 0;
+
+const sentinelle = document.createElement("div");
+sentinelle.style.height = "1px";
+document.getElementById("productsGrid").insertAdjacentElement("afterend", sentinelle);
+new IntersectionObserver((e) => { if (e[0].isIntersecting) remplirEcran(); }, { rootMargin: "800px" }).observe(sentinelle);
+
+const feedObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    const productId = entry.target.dataset.productId;
+    if (productId) markProductAsSeen(productId);
+    feedObserver.unobserve(entry.target);
+  });
+}, { threshold: 0.5 });
+
+const SVG_VENDU = `<svg viewBox="0 0 120 40" role="img" aria-label="Vendu"><rect x="1" y="1" width="118" height="38" rx="19" fill="#ef4444"/><path d="M19 21l5 5 9-11" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="44" y="26" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="17" font-weight="800" fill="#fff" letter-spacing="1">VENDU</text></svg>`;
+
+function creerCarte(p, canLike) {
+  const isFav = userFavorites.includes(p.id);
+  const favCount = p.favoris || 0;
+
+  let imagesList = [];
+  if (Array.isArray(p.images) && p.images.length > 0) imagesList = p.images;
+  else if (p.image) imagesList = [p.image];
+  const firstImage = imagesList.length > 0 ? imagesList[0] : "";
+
+  let dotsHtml = "";
+  if (imagesList.length > 1) {
+    dotsHtml = `<div class="image-dots">${imagesList.map((_, idx) => `<div class="dot ${idx === 0 ? "active" : ""}"></div>`).join("")}</div>`;
+  }
+
+  const favButtonHtml = canLike ? `
+    <button class="fav-btn ${isFav ? "active" : ""}" data-id="${esc(p.id)}" onclick="toggleFavorite(event, '${esc(p.id)}')">
+      <div class="svg-1">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </div>
+      <div class="svg-2">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </div>
+      <span class="fav-count">${favCount}</span>
+    </button>` : "";
+
+    // Boost revérifié au moment de l'affichage (dates)
+  const t = Date.now();
+  const articleBoost = p.isBoosted === true && !!p.boostUntil && new Date(p.boostUntil).getTime() > t;
+  const compteBoost = p.vendeurIsPremium === true && !!p.premiumUntil && new Date(p.premiumUntil).getTime() > t;
+
+  let boostClass = "";
+  if (compteBoost) boostClass = "card-boosted-account";
+  else if (articleBoost) boostClass = "card-boosted-item";
+
+  const card = document.createElement("div");
+  card.dataset.productId = p.id;
+  card.className = `product-card ${boostClass} ${p.isSold ? "is-sold" : ""}`;
+  card.onclick = (e) => { if (!e.target.closest(".fav-btn")) window.location.href = `article.html?id=${encodeURIComponent(p.id)}`; };
+
+  const proBadgeHtml = p.vendeurIsPremium ? `
+    <span class="badge-pro" title="Certifié Premium Pro">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="#ca8a04" stroke="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+      Pro
+    </span>` : "";
+
+  let boostBadgeHtml = "";
+  if (compteBoost) {
+    boostBadgeHtml = `<span class="badge-boost" title="Compte Boosté"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg></span>`;
+  } else if (articleBoost) {
+    boostBadgeHtml = `<span class="badge-boost-item" title="Article Boosté"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg></span>`;
+  }
+
+
+  card.innerHTML = `
+    <div class="image-container">
+      ${boostBadgeHtml}
+      <img src="${esc(firstImage)}" alt="${esc(p.nom || "Produit")}" loading="lazy">
+      ${p.isSold ? `<div class="sold-overlay">${SVG_VENDU}</div>` : ""}
+      <div class="shop-badge">${esc(p.shopName || "Boutique")}</div>
+      <div style="position: absolute; top: 10px; right: 10px; z-index: 5;" class="vendor-flag"></div>
+      ${dotsHtml}
+      ${favButtonHtml}
+    </div>
+    <div class="product-info">
+      <span class="product-type">
+        ${esc(p.type || "")}
+        ${proBadgeHtml}
+      </span>
+      <span class="product-price">${esc(p.prix)} ${esc(p.devise)}</span>
+      <span class="product-stock">Stock: ${esc(p.stock)}</span>
+    </div>`;
+
+
+  const countryName = p.country;
+  const flagContainer = card.querySelector(".vendor-flag");
+  if (flagContainer && countryName) {
+    const cleanCountry = countryName.toLowerCase().trim();
+    const isoCode = countryCodeMap[cleanCountry] || cleanCountry.substring(0, 2);
+    if (isoCode && isoCode.length === 2) {
+      flagContainer.innerHTML = `<div class="country-flag-badge" title="${esc(countryName)}"><img src="https://flagcdn.com/w80/${esc(isoCode)}.png" alt="${esc(countryName)}"></div>`;
+    }
+  }
+  return card;
+}
+
+function ajouterCartes() {
+  const grid = document.getElementById("productsGrid");
+  const term = document.getElementById("searchInput").value.toLowerCase().trim();
+  const canLike = userRole === "acheteur" || userRole === "vendeurs_clients";
+  const placeholder = grid.querySelector(".empty-state");
+  if (placeholder) placeholder.remove();
+
+  let n = 0;
+  while (renderIndex < renderSource.length && n < FEED_SIZE) {
+    const p = renderSource[renderIndex++];
+    if (p.isSold && !term) continue;        // jamais dans le fil, mais visible en recherche
+    if (idsGrille.has(p.id)) continue;      // déjà à l'écran (par exemple venu du cache)
+    idsGrille.add(p.id);        // jamais dans le fil, mais visible en recherche
+    const card = creerCarte(p, canLike);
+    grid.appendChild(card);
+    if (activeFilter === "all" && !term) feedObserver.observe(card);
+    n++;
+  }
+}
+
+// Ajoute des lots tant que l'écran (et 800 px en dessous) n'est pas rempli
+function remplirEcran() {
+  let garde = 0;
+  while (renderIndex < renderSource.length && garde++ < 25 &&
+         sentinelle.getBoundingClientRect().top < window.innerHeight + 800) {
+    ajouterCartes();
+  }
+}
+
+function renderProducts(products) {
+  const grid = document.getElementById("productsGrid");
+  grid.innerHTML = "";
+  idsGrille.clear();
+  renderSource = products;
+  renderIndex = 0;
+  remplirEcran();
+  if (!grid.children.length) {
+    grid.innerHTML = (chargementEnCours && products === currentFeedProducts)
+      ? `<div class="empty-state">${currentI18n.loading || "Chargement..."}</div>`
+      : `<div class="empty-state">${currentI18n.empty}</div>`;
+  }
+}
+
+    window.handleSearch = function() {
+      const term = document.getElementById("searchInput").value.toLowerCase().trim();
+      const tabs = document.getElementById("searchTabs");
+
+      if (term.length > 0) {
+        tabs.classList.add("active");
+        document.body.style.paddingTop = "115px";
+
+        clearTimeout(searchDebounceTimeout);
+        searchDebounceTimeout = setTimeout(() => {
+          saveSearchTerm(term);
+        }, 1200);
+      } else {
+        tabs.classList.remove("active");
+        document.body.style.paddingTop = "80px";
+      }
+
+      applyFilters();
+    };
+
+    async function saveSearchTerm(term) {
+      if (!currentUser || term.length < 2) return;
+      try {
+        let collectionName = "acheteurs";
+        if (userRole === "vendeurs") collectionName = "vendeurs";
+        if (userRole === "vendeurs_clients") collectionName = "vendeurs_clients";
+
+        const userRef = doc(db, collectionName, currentUser.uid);
+
+        await updateDoc(userRef, {
+          searchHistory: arrayUnion(term)
+        });
+
+        if (!searchHistory.includes(term)) {
+          searchHistory.push(term);
+        }
+      } catch (e) {
+        console.error("Erreur enregistrement recherche:", e);
+      }
+    }
+
+    window.setSearchFilter = function(filterType, element) {
+      activeFilter = filterType;
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      element.classList.add("active");
+      applyFilters();
+    };
+
+function applyFilters() {
+  const term = document.getElementById("searchInput").value.toLowerCase().trim();
+
+  const now = new Date();
+    // Sans recherche, on affiche le fil continu
+  if (activeFilter === "all" && !term) { renderProducts(currentFeedProducts); return; }
+
+  const sourceProducts =
+    activeFilter === "all" && !term
+        ? currentFeedProducts
+        : allProducts;
+
+  const filtered = sourceProducts.filter(p => {
+
+    // Ne pas afficher les articles vendus
+        // Vendus : cachés dans le fil et « Nouveautés », visibles en recherche
+    if (p.isSold && (!term || activeFilter === "nouveautes")) return false;
+
+    // ==========================================
+    // 🆕 ONGLET NOUVEAUTÉS
+    // ==========================================
+    if (activeFilter === "nouveautes") {
+
+      if (!p.createdAt) return false;
+
+      // Récupération de la date Firestore
+      const createdDate = p.createdAt.toDate
+        ? p.createdAt.toDate()
+        : new Date(p.createdAt);
+
+      // Âge de l'article en jours
+      const ageInDays =
+        (now - createdDate) / (1000 * 60 * 60 * 24);
+
+      // Seulement les articles de moins de 5 jours
+      if (ageInDays < 0 || ageInDays > 5) {
+        return false;
+      }
+
+      return true;
+    }
+
+    // ==========================================
+    // 🔎 RECHERCHE NORMALE
+    // ==========================================
+
+    const nom = (p.nom || "").toLowerCase();
+    const type = (p.type || "").toLowerCase();
+    const shop = (p.shopName || "").toLowerCase();
+    const city = (p.city || "").toLowerCase();
+    const province = (p.province || "").toLowerCase();
+    const country = (p.country || "").toLowerCase();
+
+    const matchesTerm = !term || (
+      nom.includes(term) ||
+      type.includes(term) ||
+      shop.includes(term) ||
+      city.includes(term) ||
+      province.includes(term) ||
+      country.includes(term)
+    );
+
+    if (!matchesTerm) return false;
+
+    if (activeFilter === "produits") {
+      return nom.includes(term) || type.includes(term);
+
+    } else if (activeFilter === "boutiques") {
+      return shop.includes(term);
+
+    } else if (activeFilter === "villes") {
+      return (
+        city.includes(term) ||
+        province.includes(term) ||
+        country.includes(term)
+      );
+
+    } else if (activeFilter === "favoris") {
+      return userFavorites.includes(p.id);
+    }
+
+    return true;
+  });
+
+  // ==========================================
+  // 🆕 CLASSEMENT DES NOUVEAUTÉS
+  // ==========================================
+
+  if (activeFilter === "nouveautes") {
+
+    filtered.sort((a, b) => {
+
+      const getCreatedDate = (p) => {
+        if (!p.createdAt) return new Date(0);
+
+        return p.createdAt.toDate
+          ? p.createdAt.toDate()
+          : new Date(p.createdAt);
+      };
+
+      const dateA = getCreatedDate(a);
+      const dateB = getCreatedDate(b);
+
+      // ------------------------------------------
+      // Fonction pour calculer la correspondance
+      // avec les préférences
+      // ------------------------------------------
+
+      const getPreferenceScore = (p) => {
+
+        const type = (p.type || "").toLowerCase();
+
+        let score = 0;
+
+        userPreferencesCache.forEach(pref => {
+
+          const preference = String(pref).toLowerCase().trim();
+
+          if (!preference) return;
+
+          // Correspondance exacte du type
+          if (type === preference) {
+            score += 1000;
+          }
+
+          // Le type contient la préférence
+          else if (type.includes(preference)) {
+            score += 700;
+          }
+
+          // La préférence contient le type
+          else if (preference.includes(type)) {
+            score += 500;
+          }
+
+          // Recherche également dans le nom
+          const nom = (p.nom || "").toLowerCase();
+
+          if (nom.includes(preference)) {
+            score += 400;
+          }
+        });
+
+        // Localisation de l'utilisateur
+        const city = (p.city || "").toLowerCase();
+        const province = (p.province || "").toLowerCase();
+        const country = (p.country || "").toLowerCase();
+
+        if (
+          userCity &&
+          city === userCity.toLowerCase()
+        ) {
+          score += 150;
+        }
+
+        if (
+          userProvince &&
+          province === userProvince.toLowerCase()
+        ) {
+          score += 100;
+        }
+
+        if (
+          userCountry &&
+          country === userCountry.toLowerCase()
+        ) {
+          score += 50;
+        }
+
+        return score;
+      };
+
+      const scoreA = getPreferenceScore(a);
+      const scoreB = getPreferenceScore(b);
+
+      // 1️⃣ Préférence utilisateur en priorité
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA;
+      }
+
+      // 2️⃣ Ensuite les plus récents
+      return dateB - dateA;
+    });
+  }
+
+  renderProducts(filtered);
+}
+
+    window.toggleFavorite = async function(event, productId) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!currentUser || userRole === "vendeurs") return;
+
+      const btn = event.currentTarget;
+      const countSpan = btn.querySelector('.fav-count');
+      const index = userFavorites.indexOf(productId);
+      const isFav = index !== -1;
+
+      let currentCount = parseInt(countSpan.textContent || '0', 10);
+
+      if (isFav) {
+        userFavorites.splice(index, 1);
+        btn.classList.remove("active");
+        currentCount = Math.max(0, currentCount - 1);
+      } else {
+        userFavorites.push(productId);
+        btn.classList.add("active");
+        currentCount += 1;
+      }
+
+      countSpan.textContent = currentCount;
+
+      const productInList = allProducts.find(p => p.id === productId);
+      if (productInList) {
+        productInList.favoris = currentCount;
+      }
+
+      if (activeFilter === "favoris") {
+        applyFilters();
+      }
+
+      let collectionName = "acheteurs";
+      if (userRole === "vendeurs_clients") collectionName = "vendeurs_clients";
+
+      const userRef = doc(db, collectionName, currentUser.uid);
+      const productRef = doc(db, "produits", productId);
+
+      try {
+        await updateDoc(userRef, {
+          favoris: isFav ? arrayRemove(productId) : arrayUnion(productId)
+        });
+
+        await updateDoc(productRef, {
+          favoris: increment(isFav ? -1 : 1)
+        });
+      } catch (e) {
+        console.error("Erreur de mise à jour des favoris:", e);
+      }
+    };
+
+const offlineBanner = document.getElementById("offlineBanner");
+
+function updateConnectionStatus() {
+
+    if (!offlineBanner) return;
+
+    if (!navigator.onLine) {
+        offlineBanner.classList.add("show");
+    } else {
+        offlineBanner.classList.remove("show");
+    }
+}
+
+window.addEventListener("offline", () => {
+    updateConnectionStatus();
+});
+
+window.addEventListener("online", () => {
+    updateConnectionStatus();
+});
+
+// Vérification au démarrage
+updateConnectionStatus();
+// ==========================================
+// 📡 CONNEXION FAIBLE : CACHE + SURVEILLANCE
+// ==========================================
+const idsGrille = new Set();
+let etatReseau = "ok";            // "ok" | "lent" | "coupe"
+let besoinRafraichir = false;
+let toastReseauTimer = null;
+let dernierToastReseau = 0;
+
+// ---------- Toast de 5 secondes ----------
+function showReseauToast(message, type = "info") {
+  const t = document.getElementById("reseauToast");
+  if (!t) return;
+  t.textContent = message;
+  t.className = `reseau-toast ${type} show`;
+  dernierToastReseau = Date.now();
+  clearTimeout(toastReseauTimer);
+  toastReseauTimer = setTimeout(() => t.classList.remove("show"), 5000);
+}
+
+function signalerReseau(etat) {
+  if (etat === etatReseau) return;
+  etatReseau = etat;
+  if (etat === "ok") {
+    if (besoinRafraichir) { besoinRafraichir = false; loadProducts(userPreferencesCache); }
+    showReseauToast("Connexion rétablie ✓", "ok");
+  } else if (Date.now() - dernierToastReseau > 15000 || etat === "coupe") {
+    if (etat === "lent") showReseauToast("Connexion lente : les derniers articles enregistrés restent affichés.", "warn");
+    else showReseauToast("Pas de connexion : vous voyez les derniers articles enregistrés.", "err");
+  }
+}
+
+// Test réel de la connexion (navigator.onLine seul n'est pas fiable sur mobile)
+async function testerReseau() {
+  if (!navigator.onLine) { signalerReseau("coupe"); return; }
+  const debut = performance.now();
+  const controle = new AbortController();
+  const stop = setTimeout(() => controle.abort(), 6000);
+  try {
+    await fetch("https://firestore.googleapis.com/", { mode: "no-cors", cache: "no-store", signal: controle.signal });
+    signalerReseau(performance.now() - debut > 3500 ? "lent" : "ok");
+  } catch (e) {
+    signalerReseau(e.name === "AbortError" ? "lent" : "coupe");
+  } finally { clearTimeout(stop); }
+}
+
+function surveillerReseau() {
+  window.addEventListener("online", testerReseau);
+  window.addEventListener("offline", () => signalerReseau("coupe"));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") testerReseau(); });
+  setInterval(testerReseau, 20000);
+  testerReseau();
+}
+
+// ---------- Accès Firestore par l'API REST (sans les photos, sans attendre les 10 s) ----------
+async function restFetch(url, corps) {
+  const headers = { "Content-Type": "application/json" };
+  if (currentUser) headers.Authorization = "Bearer " + await currentUser.getIdToken();
+  const r = await fetch(`${url}${url.includes("?") ? "&" : "?"}key=${firebaseConfig.apiKey}`, {
+    method: corps ? "POST" : "GET",
+    headers,
+    body: corps ? JSON.stringify(corps) : undefined
+  });
+  if (!r.ok) throw new Error("Firestore " + r.status);
+  return r.json();
+}
+
+// ---------- Profil enregistré sur l'appareil (ville, photo, préférences...) ----------
+const CLE_PROFIL = "vea_profil_cache";
+const CHAMPS_PROFIL = ["feedSeenProducts", "address", "city", "ville", "province", "country", "pays", "preferences", "favoris", "searchHistory", "langue", "darkMode", "isPremium", "isBoosted", "boostUntil", "lastAdShown"];
+
+function lireProfilCache() { try { return JSON.parse(localStorage.getItem(CLE_PROFIL)) || null; } catch (_) { return null; } }
+function sauverProfilCache(partiel) {
+  try { localStorage.setItem(CLE_PROFIL, JSON.stringify({ ...(lireProfilCache() || {}), ...partiel })); } catch (_) {}
+}
+
+function appliquerProfilUI({ city, role, photo }) {
+  if (city !== undefined) document.getElementById("cityName").textContent = city || "--";
+  const profileBtn = document.getElementById("profileBtn");
+  const addBtn = document.getElementById("addProductBtn");
+  if (role) {
+    profileBtn.href = role === "acheteur" ? "compte-a.html" : "compte-v.html";
+    addBtn.style.display = role === "acheteur" ? "none" : "flex";
+  }
+  if (photo) {
+    profileBtn.innerHTML = `<img src="${esc(photo)}" alt="Profil"><span class="unread-badge" id="profileBadge" style="display: none;"></span>`;
+    majBadges();
+  }
+}
+
+// Au démarrage : ville, photo et préférences s'affichent TOUT DE SUITE, avant tout réseau
+function appliquerProfilCache() {
+  const c = lireProfilCache();
+  if (!c) return;
+  userRole = c.role || userRole;
+  userCollectionName = c.collection || userCollectionName;
+  userCity = c.city || ""; userProvince = c.province || ""; userCountry = c.country || "";
+  userPreferencesCache = c.preferences || [];
+  userFavorites = c.favoris || [];
+  searchHistory = c.searchHistory || [];
+  feedSeenProducts = c.feedSeenProducts || {};
+  appliquerProfilUI({ city: c.city, role: c.role, photo: c.photo });
+}
+
+// La photo de profil est réduite (96 px, environ 4 Ko) pour tenir dans le localStorage
+function creerMiniature(src, taille = 96) {
+  return new Promise((ok) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = c.height = taille;
+        const s = Math.min(img.width, img.height);
+        c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, taille, taille);
+        ok(c.toDataURL("image/jpeg", 0.75));
+      } catch (_) { ok(src.startsWith("http") ? src : ""); }
+    };
+    img.onerror = () => ok(src.startsWith("http") ? src : "");
+    img.src = src;
+  });
+}
+
+async function chargerPhotoProfil(user, col) {
+  const c = lireProfilCache();
+  if (c && c.photo && Date.now() - (c.photoT || 0) < 24 * 3600 * 1000) return;   // déjà gardée (24 h)
+  try {
+    const d = await restFetch(`${REST_URL}/${col}/${user.uid}?mask.fieldPaths=photoUrl&mask.fieldPaths=photo`);
+    const f = lireChamps(d.fields);
+    const src = f.photoUrl || f.photo || "";
+    if (!src) return;
+    const mini = await creerMiniature(src);
+    if (mini) { appliquerProfilUI({ photo: mini }); sauverProfilCache({ photo: mini, photoT: Date.now() }); }
+  } catch (_) {}
+}
+
+// Même logique que l'ancien bloc, mais en REST et sans la photo
+async function chargerProfil(user) {
+  try {
+    const noms = ["vendeurs_clients", "vendeurs", "acheteurs"];
+    const r = await restFetch(`${REST_URL}:batchGet`, {
+      documents: noms.map((c) => `${DOC_ROOT}/${c}/${user.uid}`),
+      mask: { fieldPaths: CHAMPS_PROFIL }
+    });
+    let col = null, userData = null;
+    for (const c of noms) {
+      const x = r.find((y) => y.found && y.found.name.endsWith(`/${c}/${user.uid}`));
+      if (x) { col = c; userData = lireChamps(x.found.fields); break; }
+    }
+    if (!userData) return false;
+
+    userRole = col === "acheteurs" ? "acheteur" : col;
+    userCollectionName = col;
+    const isVendeurOrVC = userRole !== "acheteur";
+
+    feedSeenProducts = { ...(userData.feedSeenProducts || {}), ...feedSeenProducts };
+    const addr = userData.address || {};
+    userCity = addr.city || userData.city || userData.ville || "";
+    userProvince = addr.province || userData.province || "";
+    userCountry = addr.country || userData.country || userData.pays || "";
+    userPreferencesCache = userData.preferences || [];
+    userFavorites = Array.isArray(userData.favoris) ? userData.favoris : [];
+    searchHistory = Array.isArray(userData.searchHistory) ? userData.searchHistory : [];
+
+    appliquerProfilUI({ city: userCity, role: userRole });
+    sauverProfilCache({ role: userRole, collection: col, city: userCity, province: userProvince, country: userCountry,
+      preferences: userPreferencesCache, favoris: userFavorites, searchHistory });
+
+    if (!localStorage.getItem("app_lang") && userData.langue) {
+      currentI18n = i18n[userData.langue] || i18n.fr;
+      localStorage.setItem("app_lang", userData.langue);
+      document.getElementById("searchInput").placeholder = currentI18n.search;
+    }
+    if (!localStorage.getItem("app_theme") && userData.darkMode !== undefined) {
+      const themeName = userData.darkMode === true ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", themeName);
+      localStorage.setItem("app_theme", themeName);
+    }
+
+    const isUserBoosted = userData.isPremium || userData.isBoosted || (userData.boostUntil && new Date(userData.boostUntil) > new Date());
+    if (isVendeurOrVC && !isUserBoosted) checkAndShowAd(userData);
+
+    chargerPhotoProfil(user, col);   // sans attendre
+    return true;
+  } catch (e) {
+    console.error("Erreur chargement profil:", e);
+    return false;
+  }
+}
+
+// Favoris, historique et articles vus : gardés quand on quitte la page
+function sauverEtatLocal() { sauverProfilCache({ favoris: userFavorites, searchHistory, feedSeenProducts }); }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") sauverEtatLocal(); });
+window.addEventListener("pagehide", sauverEtatLocal);
+
+// ---------- Fil enregistré sur l'appareil (comme Pinterest : on voit toujours quelque chose) ----------
+const CHAMPS_CACHE = ["id", "nom", "prix", "devise", "stock", "type", "image", "images", "vendeurId", "favoris", "vendu", "statut",
+  "isBoosted", "boostUntil", "createdAt", "shopName", "city", "province", "country", "premiumUntil", "vendeurIsPremium"];
+const enChaine = (v) => (typeof v === "string" || v == null) ? v : (v.toDate ? v.toDate().toISOString() : undefined);
+
+function sauverFilCache() {
+  try {
+    const items = currentFeedProducts.filter((p) => !p.isSold).slice(0, 60).map((p) => {
+      const o = {};
+      CHAMPS_CACHE.forEach((k) => {
+        if (p[k] === undefined) return;
+        o[k] = (k === "createdAt" || k === "boostUntil" || k === "premiumUntil") ? enChaine(p[k]) : p[k];
+      });
+      return o;
+    });
+    localStorage.setItem("vea_feed_cache", JSON.stringify({ t: Date.now(), items }));
+  } catch (_) {}
+}
+
+function reconstruireProduit(p) {
+  const now = Date.now();
+  p.isSold = p.vendu === true || p.statut === "vendu";
+  p.isItemBoosted = p.isBoosted === true && !!p.boostUntil && new Date(p.boostUntil).getTime() > now;
+  p.isAccountBoosted = p.vendeurIsPremium === true && !!p.premiumUntil && new Date(p.premiumUntil).getTime() > now;
+  p.hasBoostStyle = p.isItemBoosted || p.isAccountBoosted;
+  return p;
+}
+
+function afficherFilDepuisCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem("vea_feed_cache"));
+    if (!c || !Array.isArray(c.items) || !c.items.length) return;
+    const liste = c.items.map(reconstruireProduit);
+    rawProducts = [...liste]; allProducts = [...liste]; currentFeedProducts = liste;
+    renderProducts(currentFeedProducts);
+  } catch (_) {}
+}
+
+// Quand le vrai fil arrive : il remplace le cache si tu n'as pas encore défilé,
+// sinon il s'ajoute à la suite SANS effacer ce que tu regardes
+function appliquerFilFrais(force) {
+  const term = document.getElementById("searchInput").value.toLowerCase().trim();
+  if (activeFilter !== "all" || term) { applyFilters(); return; }
+  const grid = document.getElementById("productsGrid");
+  if (force || window.scrollY < 80 || !grid.querySelector(".product-card")) {
+    renderProducts(currentFeedProducts);
+  } else {
+    renderSource = currentFeedProducts; renderIndex = 0; remplirEcran();
+  }
+}
+
+// ---------- Démarrage : tout ce qui est enregistré s'affiche immédiatement ----------
+appliquerProfilCache();
+afficherFilDepuisCache();
+surveillerReseau();
+  </script>
+</body>
+</html>

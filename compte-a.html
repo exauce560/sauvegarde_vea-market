@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VÉA Client - Mon Compte</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      padding-bottom: 80px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.light-mode {
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
+    }
+
+    /* Ombre légèrement bleue pour encadrer les fonctionnalités */
+    .card-box {
+      background: #1e1e1e;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+    body.light-mode .card-box {
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
+      border: 1px solid rgba(37, 99, 235, 0.15);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    body.light-mode .header {
+      border-bottom-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .notif-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .notif-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #a0a0a0;
+    }
+    body.light-mode .notif-label {
+      color: #64748b;
+    }
+
+    .switch-large {
+      position: relative;
+      display: inline-block;
+      width: 58px;
+      height: 32px;
+    }
+    .switch-large input { opacity: 0; width: 0; height: 0; }
+    .slider-large {
+      position: absolute; cursor: pointer; inset: 0;
+      background-color: #333333; transition: .3s; border-radius: 32px;
+    }
+    body.light-mode .slider-large { background-color: #cbd5e1; }
+    .slider-large:before {
+      position: absolute; content: ""; height: 24px; width: 24px;
+      left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    input:checked + .slider-large { background-color: #2563eb; }
+    input:checked + .slider-large:before { transform: translateX(26px); }
+
+    /* Profil Utilisateur */
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .profile-avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #2a2a2a;
+      border: 2px solid rgba(241, 245, 249, 0.9);
+      padding: 3px;
+      background-clip: content-box;
+    }
+    body.light-mode .profile-avatar {
+      border-color: #cbd5e1;
+    }
+
+    .avatar-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: #2563eb;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #121212;
+    }
+    body.light-mode .avatar-badge {
+      border-color: #f8fafc;
+    }
+
+    .avatar-badge svg {
+      width: 12px;
+      height: 12px;
+      fill: #fff;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .profile-country {
+      font-size: 0.9rem;
+      color: #a0a0a0;
+    }
+
+    .profile-city {
+      font-size: 0.85rem;
+      color: #a0a0a0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    body.light-mode .profile-country,
+    body.light-mode .profile-city {
+      color: #64748b;
+    }
+
+    .location-icon {
+      width: 16px;
+      height: 16px;
+      stroke: #3b82f6;
+      flex-shrink: 0;
+    }
+
+    /* Carrousel des Favoris */
+    .favorites-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .favorites-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #a0a0a0;
+      text-transform: uppercase;
+    }
+    body.light-mode .favorites-title {
+      color: #64748b;
+    }
+
+    .favorites-list {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 0;
+      scrollbar-width: none;
+    }
+    .favorites-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .fav-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: inherit;
+      flex-shrink: 0;
+    }
+
+    .fav-circle {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #3b82f6;
+      background: #2a2a2a;
+    }
+
+    .fav-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .sold-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sold-check {
+      width: 26px;
+      height: 26px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+    }
+
+    .fav-label {
+      font-size: 0.75rem;
+      width: 68px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Menu & Navigation */
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 4px 12px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 4px;
+      text-decoration: none;
+      color: inherit;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      width: 100%;
+      text-align: left;
+    }
+    body.light-mode .menu-item {
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .menu-item:active {
+      opacity: 0.7;
+    }
+
+    .menu-item-logout {
+      color: #ef4444;
+    }
+
+    .menu-value {
+      font-size: 0.9rem;
+      color: #3b82f6;
+      font-weight: 500;
+    }
+
+    .menu-item-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .new-badge {
+      width: 10px;
+      height: 10px;
+      background-color: #22c55e;
+      border-radius: 50%;
+      display: none;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    }
+
+    .app-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #71717a;
+      letter-spacing: 0.5px;
+    }
+
+    .back-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+      z-index: 90;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .back-button:active {
+      transform: scale(0.95);
+    }
+    body.light-mode .back-button {
+      background: #ffffff;
+      border-color: rgba(0,0,0,0.15);
+      color: #0f172a;
+    }
+
+    .back-icon {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    /* Modales */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #1e1e1e;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+    body.light-mode .modal-content {
+      background: #ffffff;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .modal-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: #a0a0a0;
+    }
+    body.light-mode .form-group label {
+      color: #64748b;
+    }
+
+    .modal-input, .modal-select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 1rem;
+    }
+    body.light-mode .modal-input,
+    body.light-mode .modal-select {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-secondary { background: #444; color: #fff; }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background-color: #444; transition: .3s; border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px;
+      left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: #2563eb; }
+    input:checked + .slider:before { transform: translateX(22px); }
+* {
+    -webkit-tap-highlight-color: transparent;
+  }
+  </style>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "31639645-a285-43ec-9366-175f51dff21c",
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="brand-title">VÉA MARKET</div>
+
+      <div class="notif-wrapper">
+        <span class="notif-label" data-lang-fr="Notifs" data-lang-en="Notifs">Notifs</span>
+        <label class="switch-large">
+          <input type="checkbox" id="notifToggle" onchange="toggleNotifications(this.checked)">
+          <span class="slider-large"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Profil Utilisateur avec Ombre Bleue -->
+    <div class="profile-card card-box">
+      <div class="avatar-wrapper" onclick="triggerFileInput()" title="Changer la photo">
+        <img id="userAvatar" class="profile-avatar" src="https://via.placeholder.com/150" alt="Avatar">
+        <div class="avatar-badge">
+          <svg viewBox="0 0 24 24">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
+      </div>
+      <div class="profile-info">
+        <span id="userName" class="profile-name" data-lang-fr="Chargement..." data-lang-en="Loading...">Chargement...</span>
+        <span id="userCountry" class="profile-country">---</span>
+        <span class="profile-city">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="location-icon">
+            <path d="M15 22a1 1 0 0 1-1-1v-4a1 1 0 0 1 .445-.832l3-2a1 1 0 0 1 1.11 0l3 2A1 1 0 0 1 22 17v4a1 1 0 0 1-1 1z"/>
+            <path d="M18 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 .601.2"/>
+            <path d="M18 22v-3"/>
+            <circle cx="10" cy="10" r="3"/>
+          </svg>
+          <span id="userCity">---</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Carrousel des Articles Favoris -->
+    <div class="favorites-section card-box" id="favoritesSection">
+      <div class="favorites-title" data-lang-fr="Mes Favoris Récents" data-lang-en="My Recent Favorites">Mes Favoris Récents</div>
+      <div class="favorites-list" id="favoritesList">
+        <!-- Dynamiquement peuplé via JS -->
+      </div>
+    </div>
+
+    <!-- Menu Principal avec Ombre Bleue (Sans symboles >) -->
+    <div class="menu-list card-box">
+      <button type="button" class="menu-item" onclick="openAddressModal()">
+        <span data-lang-fr="MODIFIER MON ADRESSE" data-lang-en="EDIT MY ADDRESS">MODIFIER MON ADRESSE</span>
+        <span id="currentAddressValue" class="menu-value"></span>
+      </button>
+
+      <a href="abonnement.html" class="menu-item" id="abonnementLink">
+        <span data-lang-fr="ABONNEMENT" data-lang-en="SUBSCRIPTION">ABONNEMENT</span>
+        <div class="menu-item-right">
+          <span id="newArticleBadge" class="new-badge" title="Nouveau contenu disponible"></span>
+        </div>
+      </a>
+
+      <a href="favoris.html" class="menu-item">
+        <span data-lang-fr="FAVORIS" data-lang-en="FAVORITES">FAVORIS</span>
+      </a>
+
+      <a href="conditions.html" class="menu-item">
+        <span data-lang-fr="CONFIDENTIALITÉ" data-lang-en="PRIVACY">CONFIDENTIALITÉ</span>
+      </a>
+
+      <button type="button" class="menu-item" onclick="openLangModal()">
+        <span data-lang-fr="MODE APPARENCE ET LANGUE" data-lang-en="THEME AND LANGUAGE">MODE APPARENCE ET LANGUE</span>
+        <span id="currentLangLabel" class="menu-value">FR / Sombre</span>
+      </button>
+
+      <button type="button" class="menu-item" onclick="openPhoneModal()">
+        <span data-lang-fr="NUM WHATSAPP" data-lang-en="WHATSAPP NUMBER">NUM WHATSAPP</span>
+        <span id="userPhoneDisplay" class="menu-value" data-lang-fr="Non défini" data-lang-en="Not set">Non défini</span>
+      </button>
+
+      <button type="button" class="menu-item menu-item-logout" id="logoutBtn">
+        <span data-lang-fr="DÉCONNEXION" data-lang-en="LOGOUT">DÉCONNEXION</span>
+      </button>
+    </div>
+
+    <footer class="app-footer">
+      vea market 2026
+    </footer>
+  </div>
+
+  <button class="back-button" onclick="history.back()" title="Retour">
+    <svg class="back-icon" viewBox="0 0 24 24">
+      <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+    </svg>
+  </button>
+
+  <!-- Modale Adresse -->
+  <div class="modal-overlay" id="addressModal">
+    <div class="modal-content">
+      <div class="modal-title" data-lang-fr="Modifier mon adresse" data-lang-en="Edit my address">Modifier mon adresse</div>
+
+      <div class="form-group">
+        <label for="addressCountry" data-lang-fr="Pays" data-lang-en="Country">Pays</label>
+        <input type="text" id="addressCountry" class="modal-input" placeholder="ex: RDC">
+      </div>
+
+      <div class="form-group">
+        <label for="addressProvince" data-lang-fr="Province / Région" data-lang-en="Province / Region">Province / Région</label>
+        <input type="text" id="addressProvince" class="modal-input" placeholder="ex: Nord-Kivu">
+      </div>
+
+      <div class="form-group">
+        <label for="addressCity" data-lang-fr="Ville" data-lang-en="City">Ville</label>
+        <input type="text" id="addressCity" class="modal-input" placeholder="ex: Goma">
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeAddressModal()" data-lang-fr="Annuler" data-lang-en="Cancel">Annuler</button>
+        <button class="btn btn-primary" id="saveAddressBtn" onclick="updateAddress()" data-lang-fr="Sauvegarder" data-lang-en="Save">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Langue et Apparence -->
+  <div class="modal-overlay" id="langModal">
+    <div class="modal-content">
+      <div class="modal-title" data-lang-fr="Apparence et Langue" data-lang-en="Theme & Language">Apparence et Langue</div>
+
+      <div class="modal-option">
+        <span data-lang-fr="Mode Sombre" data-lang-en="Dark Mode">Mode Sombre</span>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" checked onchange="toggleDarkMode(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="languageSelect" data-lang-fr="Langue d'affichage" data-lang-en="Display Language">Langue d'affichage</label>
+        <select id="languageSelect" class="modal-select">
+          <option value="fr">Français (FR)</option>
+          <option value="en">English (EN)</option>
+        </select>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-primary" onclick="saveLangSettings()" data-lang-fr="Enregistrer" data-lang-en="Save">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Numéro -->
+  <div class="modal-overlay" id="phoneModal">
+    <div class="modal-content">
+      <div class="modal-title" data-lang-fr="Modifier le Numéro WhatsApp" data-lang-en="Edit WhatsApp Number">Modifier le Numéro WhatsApp</div>
+      <input type="tel" id="phoneInput" class="modal-input" placeholder="+243900000000">
+
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closePhoneModal()" data-lang-fr="Annuler" data-lang-en="Cancel">Annuler</button>
+        <button class="btn btn-primary" id="savePhoneBtn" onclick="updatePhoneNumber()" data-lang-fr="Mettre à jour" data-lang-en="Update">Mettre à jour</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, documentId } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY5GYE-TeUEVu6rkYQcwIkELmTM-mPZEc",
+      authDomain: "v-ea-fb4c4.firebaseapp.com",
+      projectId: "v-ea-fb4c4",
+      storageBucket: "v-ea-fb4c4.firebasestorage.app",
+      messagingSenderId: "357462139035",
+      appId: "1:357462139035:web:7aa2ee50350d88a843a63e",
+      measurementId: "G-WEG1X65STP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentUserCollection = "acheteurs";
+
+    // Vider complètement le LocalStorage lors de la déconnexion
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        localStorage.clear();
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("Erreur de déconnexion :", error);
+        localStorage.clear();
+        window.location.href = "index.html";
+      }
+    });
+
+    // Chargement des favoris sous forme de ronds avec vérification Vendu/24h
+    async function loadFavoriteArticles(userUid, favIds) {
+      const container = document.getElementById("favoritesList");
+      container.innerHTML = "";
+
+      if (!favIds || favIds.length === 0) {
+        document.getElementById("favoritesSection").style.display = "none";
+        return;
+      }
+
+      try {
+        const chunks = [];
+        for (let i = 0; i < favIds.length; i += 10) {
+          chunks.push(favIds.slice(i, i + 10));
+        }
+
+        const now = new Date();
+        let count = 0;
+
+        for (const chunk of chunks) {
+          const q = query(collection(db, "produits"), where(documentId(), "in", chunk));
+          const snap = await getDocs(q);
+
+          snap.forEach((docSnap) => {
+            const prod = docSnap.data();
+            const prodId = docSnap.id;
+
+            let isSold = prod.vendu === true || prod.sold === true;
+            let soldAt = prod.venduAt ? (prod.venduAt.toDate ? prod.venduAt.toDate() : new Date(prod.venduAt)) : null;
+
+            if (isSold && soldAt) {
+              const hoursDiff = (now - soldAt) / (1000 * 60 * 60);
+              if (hoursDiff >= 24) {
+                return;
+              }
+            }
+
+            count++;
+            const itemEl = document.createElement("a");
+            itemEl.href = `article.html?id=${prodId}`;
+            itemEl.className = "fav-item";
+
+            const circleDiv = document.createElement("div");
+            circleDiv.className = "fav-circle";
+
+            const img = document.createElement("img");
+            img.className = "fav-img";
+            img.src = prod.imageUrl || prod.image || "https://via.placeholder.com/100";
+            img.alt = prod.nom || "Article";
+            circleDiv.appendChild(img);
+
+            if (isSold) {
+              const soldOverlay = document.createElement("div");
+              soldOverlay.className = "sold-overlay";
+              soldOverlay.innerHTML = `<div class="sold-check">✓</div>`;
+              circleDiv.appendChild(soldOverlay);
+            }
+
+            const labelSpan = document.createElement("span");
+            labelSpan.className = "fav-label";
+            labelSpan.textContent = prod.nom || "Article";
+
+            itemEl.appendChild(circleDiv);
+            itemEl.appendChild(labelSpan);
+            container.appendChild(itemEl);
+          });
+        }
+
+        if (count === 0) {
+          document.getElementById("favoritesSection").style.display = "none";
+        } else {
+          document.getElementById("favoritesSection").style.display = "flex";
+        }
+
+      } catch (err) {
+        console.error("Erreur chargement favoris :", err);
+        document.getElementById("favoritesSection").style.display = "none";
+      }
+    }
+
+    async function checkNewArticlesFirebase(userUid) {
+      const badge = document.getElementById("newArticleBadge");
+
+      try {
+        const userSnap = await getDoc(doc(db, "acheteurs", userUid));
+        if (!userSnap.exists()) return;
+
+        const userData = userSnap.data();
+        const abonnements = userData.abonnements || [];
+        const seenVendorsMap = userData.seenVendors || {};
+
+        if (abonnements.length === 0) {
+          badge.style.display = "none";
+          localStorage.setItem("has_new_article", "false");
+          return;
+        }
+
+        let hasAnyNewProduct = false;
+        const now = new Date();
+
+        for (const vendorId of abonnements) {
+          const lastSeenTime = seenVendorsMap[vendorId] ? new Date(seenVendorsMap[vendorId]) : null;
+
+          const q = query(
+            collection(db, "produits"),
+            where("vendeurId", "==", vendorId)
+          );
+          const querySnapshot = await getDocs(q);
+
+          querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data.createdAt) {
+              const createdAt = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+              const isRecent = ((now - createdAt) / (1000 * 60 * 60)) <= 48;
+
+              if (isRecent && (!lastSeenTime || createdAt > lastSeenTime)) {
+                hasAnyNewProduct = true;
+              }
+            }
+          });
+
+          if (hasAnyNewProduct) break;
+        }
+
+        badge.style.display = hasAnyNewProduct ? "inline-block" : "none";
+        localStorage.setItem("has_new_article", hasAnyNewProduct ? "true" : "false");
+
+      } catch (err) {
+        console.error("Erreur détection nouveautés :", err);
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+
+        checkNewArticlesFirebase(user.uid);
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push(async function(OneSignal) {
+           await OneSignal.login(user.uid);
+           const isOptedIn = await OneSignal.User.PushSubscription.optedIn;
+           document.getElementById("notifToggle").checked = !!isOptedIn;
+        });
+
+        try {
+          let userRef = doc(db, "acheteurs", user.uid);
+          let userSnap = await getDoc(userRef);
+
+          if (!userSnap.exists()) {
+            userRef = doc(db, "vendeurs", user.uid);
+            userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+              currentUserCollection = "vendeurs";
+            }
+          }
+
+          if (userSnap.exists()) {
+            const data = userSnap.data();
+
+            document.getElementById("userName").textContent = data.nom || data.displayName || "Client";
+
+            // Charger depuis localStorage en priorité, sinon Firestore
+            const localCountry = localStorage.getItem("user_address_country");
+            const localProvince = localStorage.getItem("user_address_province");
+            const localCity = localStorage.getItem("user_address_city");
+
+            const addr = data.address || {};
+            const country = localCountry || addr.country || data.country || data.pays || "RDC";
+            const province = localProvince || addr.province || data.province || "";
+            const city = localCity || addr.city || data.city || data.ville || "Goma";
+
+            document.getElementById("userCountry").textContent = country;
+            document.getElementById("userCity").textContent = province ? `${province}, ${city}` : city;
+
+            document.getElementById("addressCountry").value = country;
+            document.getElementById("addressProvince").value = province;
+            document.getElementById("addressCity").value = city;
+
+            const photo = data.photoUrl || data.photoURL || data.avatar;
+            if (photo) {
+              document.getElementById("userAvatar").src = photo;
+            }
+
+            const phone = data.telephone || data.whatsapp || data.phone || "";
+            const lang = localStorage.getItem("app_lang") || "fr";
+            const notSetText = lang === "en" ? "Not set" : "Non défini";
+            document.getElementById("userPhoneDisplay").textContent = phone || notSetText;
+            document.getElementById("phoneInput").value = phone;
+
+            const favorisIds = data.favoris || [];
+            loadFavoriteArticles(user.uid, favorisIds);
+          }
+        } catch (err) {
+          console.error("Erreur récupération Firestore :", err);
+        }
+      } else {
+        const lang = localStorage.getItem("app_lang") || "fr";
+        document.getElementById("userName").textContent = lang === "en" ? "Not connected" : "Non connecté";
+        document.getElementById("favoritesSection").style.display = "none";
+      }
+    });
+
+    window.uploadAvatar = async function(event) {
+      const file = event.target.files[0];
+      if (!file || !currentUser) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const base64Image = e.target.result;
+        document.getElementById("userAvatar").src = base64Image;
+
+        try {
+          const userRef = doc(db, currentUserCollection, currentUser.uid);
+          await updateDoc(userRef, {
+            photoUrl: base64Image,
+            avatar: base64Image
+          });
+          const lang = localStorage.getItem("app_lang") || "fr";
+          alert(lang === "en" ? "Profile picture updated!" : "Photo de profil mise à jour !");
+        } catch (error) {
+          console.error("Erreur mise à jour photo :", error);
+          alert("Erreur lors de la sauvegarde.");
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.updateAddress = async function() {
+      const country = document.getElementById("addressCountry").value.trim();
+      const province = document.getElementById("addressProvince").value.trim();
+      const city = document.getElementById("addressCity").value.trim();
+
+      // Sauvegarde dans localStorage
+      localStorage.setItem("user_address_country", country);
+      localStorage.setItem("user_address_province", province);
+      localStorage.setItem("user_address_city", city);
+
+      document.getElementById("userCountry").textContent = country || "RDC";
+      document.getElementById("userCity").textContent = province ? `${province}, ${city}` : city;
+
+      const lang = localStorage.getItem("app_lang") || "fr";
+
+      if (currentUser) {
+        const saveBtn = document.getElementById("saveAddressBtn");
+        saveBtn.disabled = true;
+        saveBtn.textContent = lang === "en" ? "Saving..." : "Sauvegarde...";
+
+        try {
+          const userRef = doc(db, currentUserCollection, currentUser.uid);
+          await updateDoc(userRef, {
+            pays: country,
+            province: province,
+            ville: city,
+            "address.country": country,
+            "address.province": province,
+            "address.city": city
+          });
+        } catch (error) {
+          console.error("Erreur mise à jour adresse Firestore :", error);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = lang === "en" ? "Save" : "Sauvegarder";
+        }
+      }
+
+      closeAddressModal();
+      alert(lang === "en" ? "Address updated successfully!" : "Adresse mise à jour avec succès !");
+    };
+
+    window.updatePhoneNumber = async function() {
+      const newPhone = document.getElementById("phoneInput").value.trim();
+      const lang = localStorage.getItem("app_lang") || "fr";
+
+      if (!currentUser) {
+        alert(lang === "en" ? "You must be logged in." : "Vous devez être connecté.");
+        return;
+      }
+
+      const saveBtn = document.getElementById("savePhoneBtn");
+      saveBtn.disabled = true;
+      saveBtn.textContent = lang === "en" ? "Saving..." : "Sauvegarde...";
+
+      try {
+        const userRef = doc(db, currentUserCollection, currentUser.uid);
+        await updateDoc(userRef, { telephone: newPhone, whatsapp: newPhone });
+
+        document.getElementById("userPhoneDisplay").textContent = newPhone || (lang === "en" ? "Not set" : "Non défini");
+        closePhoneModal();
+        alert(lang === "en" ? "Phone number updated successfully!" : "Numéro mis à jour avec succès !");
+      } catch (error) {
+        console.error("Erreur mise à jour numéro :", error);
+        alert("Erreur lors de la mise à jour.");
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = lang === "en" ? "Update" : "Mettre à jour";
+      }
+    };
+
+    window.toggleNotifications = function(enable) {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        if (enable) {
+          await OneSignal.User.PushSubscription.optIn();
+        } else {
+          await OneSignal.User.PushSubscription.optOut();
+        }
+      });
+    };
+  </script>
+
+  <!-- Script d'interface, Traduction et LocalStorage -->
+  <script>
+    function triggerFileInput() {
+      document.getElementById("avatarFileInput").click();
+    }
+
+    function openAddressModal() {
+      document.getElementById("addressModal").style.display = "flex";
+    }
+
+    function closeAddressModal() {
+      document.getElementById("addressModal").style.display = "none";
+    }
+
+    function openLangModal() {
+      document.getElementById("langModal").style.display = "flex";
+    }
+
+    function saveLangSettings() {
+      const isDark = document.getElementById("darkModeToggle").checked;
+      const selectedLang = document.getElementById("languageSelect").value;
+
+      localStorage.setItem("app_theme", isDark ? "dark" : "light");
+      localStorage.setItem("app_lang", selectedLang);
+
+      applyLanguage(selectedLang);
+      updateLangLabelDisplay(isDark, selectedLang);
+      document.getElementById("langModal").style.display = "none";
+    }
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      const elements = document.querySelectorAll("[data-lang-fr]");
+      elements.forEach((el) => {
+        if (lang === "en" && el.getAttribute("data-lang-en")) {
+          el.textContent = el.getAttribute("data-lang-en");
+        } else {
+          el.textContent = el.getAttribute("data-lang-fr");
+        }
+      });
+    }
+
+    function updateLangLabelDisplay(isDark, lang) {
+      const themeLabel = isDark ? (lang === "en" ? "Dark" : "Sombre") : (lang === "en" ? "Light" : "Clair");
+      const langLabel = lang.toUpperCase();
+      document.getElementById("currentLangLabel").textContent = `${langLabel} / ${themeLabel}`;
+    }
+
+    function toggleDarkMode(isDark) {
+      if (isDark) {
+        document.body.classList.remove("light-mode");
+      } else {
+        document.body.classList.add("light-mode");
+      }
+    }
+
+    function openPhoneModal() {
+      document.getElementById("phoneModal").style.display = "flex";
+    }
+
+    function closePhoneModal() {
+      document.getElementById("phoneModal").style.display = "none";
+    }
+
+    document.getElementById("abonnementLink").addEventListener("click", () => {
+      localStorage.setItem("has_new_article", "false");
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      // Thème localstorage
+      const savedTheme = localStorage.getItem("app_theme");
+      const isDark = savedTheme !== "light";
+      if (!isDark) {
+        document.body.classList.add("light-mode");
+        document.getElementById("darkModeToggle").checked = false;
+      }
+
+      // Langue localstorage
+      const savedLang = localStorage.getItem("app_lang") || "fr";
+      document.getElementById("languageSelect").value = savedLang;
+      applyLanguage(savedLang);
+      updateLangLabelDisplay(isDark, savedLang);
+
+      // Adresse localstorage
+      const localCountry = localStorage.getItem("user_address_country");
+      const localProvince = localStorage.getItem("user_address_province");
+      const localCity = localStorage.getItem("user_address_city");
+
+      if (localCountry) document.getElementById("addressCountry").value = localCountry;
+      if (localProvince) document.getElementById("addressProvince").value = localProvince;
+      if (localCity) document.getElementById("addressCity").value = localCity;
+
+      if (localCountry || localCity) {
+        document.getElementById("userCountry").textContent = localCountry || "RDC";
+        document.getElementById("userCity").textContent = localProvince ? `${localProvince}, ${localCity}` : (localCity || "Goma");
+      }
+
+      const hasNewArticle = localStorage.getItem("has_new_article");
+      const badge = document.getElementById("newArticleBadge");
+      if (hasNewArticle === "true") {
+        badge.style.display = "inline-block";
+      }
+    });
+  </script>
+</body>
+</html>
