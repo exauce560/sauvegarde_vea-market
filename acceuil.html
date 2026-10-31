@@ -1015,55 +1015,20 @@
     let feedSeenSaveTimeout = null;
     let userCollectionName = "acheteurs";
 
-async function envoyerPushCustom({
-  idDestinataire,
-  titre,
-  message,
-  lienUrl,
-  soundFile
-}) {
-  const payload = {
-    idDestinataire,
-    titre,
-    message,
-    lienUrl,
-    soundFile
-  };
-
+async function envoyerPushCustom({ idDestinataire, titre, message, lienUrl, soundFile }) {
   try {
-    const response = await fetch(
-      "https://vea-push-worker.vea-payment.workers.dev",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      }
-    );
-
+    const response = await fetch("https://vea-push-worker.vea-payment.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idDestinataire, titre, message, lienUrl, soundFile })
+    });
     const result = await response.json();
-
-
-    if (!response.ok) {
-      throw new Error(result.error || "Erreur du Worker");
-    }
-
+    if (!response.ok) throw new Error(result.error || "Erreur du Worker");
+    return true;
   } catch (err) {
     console.error("Erreur d'envoi de la notification :", err);
+    return false;
   }
-}
-if (currentUser && !localStorage.getItem("welcome_pushed_" + currentUser.uid)) {
-  envoyerPushCustom({
-    idDestinataire: currentUser.uid,
-    titre: "Bienvenue sur Vea Market ! 👤",
-    message: `Ravi de vous revoir ! Découvrez les derniers articles disponibles dans votre région.`,
-    lienUrl: "acceuil.html",
-    soundFile: "notif.mp3"
-  });
-
-  // Marque la notification comme envoyée pour cet utilisateur
-  localStorage.setItem("welcome_pushed_" + currentUser.uid, "true");
 }
 
 // ============================================================
@@ -1097,6 +1062,56 @@ function initOneSignalApk(user) {
   }
 }
 
+// L'appareil est-il abonné aux notifications ?
+async function appareilAbonne() {
+  const sub = OneSignal.User.pushSubscription;
+  if (typeof sub.getOptedInAsync === "function") return !!(await sub.getOptedInAsync());
+  if (typeof sub.optedIn === "boolean") return sub.optedIn;
+  return !!(await OneSignal.Notifications.getPermissionAsync());
+}
+
+// Attend jusqu'à 15 s que l'abonnement soit prêt (l'autorisation Android arrive après le login)
+async function attendreAbonnement() {
+  for (let i = 0; i < 15; i++) {
+    try { if (await appareilAbonne()) return true; } catch (_) {}
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  return false;
+}
+
+// Notification de bienvenue : une seule fois par jour et par utilisateur
+let bienvenueEnCours = false;
+
+async function envoyerBienvenueDuJour(user) {
+  if (bienvenueEnCours) return;
+
+  const cle = "welcome_push_day_" + user.uid;
+  const aujourdhui = new Date().toLocaleDateString("sv-SE");   // ex : 2026-10-25
+  if (localStorage.getItem(cle) === aujourdhui) return;        // déjà envoyée aujourd'hui
+
+  bienvenueEnCours = true;
+  try {
+    // Pas de plugin ou pas abonné : on n'envoie rien et on réessaiera à la prochaine ouverture
+    if (!oneSignalPret || !(await attendreAbonnement())) return;
+
+    await new Promise((r) => setTimeout(r, 1500));             // laisse OneSignal lier l'identifiant
+
+    const ok = await envoyerPushCustom({
+      idDestinataire: user.uid,
+      titre: "Bienvenue sur Vea Market ! 👤",
+      message: "Ravi de vous revoir ! Découvrez les derniers articles disponibles dans votre région.",
+      lienUrl: "https://vea-market.duckdns.org/acceuil.html",
+      soundFile: "notif.mp3"
+    });
+
+    if (ok) localStorage.setItem(cle, aujourdhui);             // marqué seulement si l'envoi a réussi
+  } catch (e) {
+    console.error("Erreur notification de bienvenue :", e);
+  } finally {
+    bienvenueEnCours = false;
+  }
+}
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
@@ -1105,6 +1120,7 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
 
   initOneSignalApk(user);
+  envoyerBienvenueDuJour(user);   // sans await : n'attend pas la fin
 
     // Le profil se charge en parallèle. Les articles n'attendent plus que 2,5 s au maximum
   // (le profil enregistré sur l'appareil sert à personnaliser en attendant).
@@ -1542,7 +1558,8 @@ async function chargerPage(taille, serveur, session) {
   const q = query(collection(db, "produits"), ...contraintes, limit(taille));
   const snap = serveur ? await getDocsFromServer(q) : await getDocs(q);
   if (session !== sessionChargement) return [];   // un nouveau chargement a démarré
-  if (snap.metadata.fromCache && snap.docs.length === 0) throw new Error("reseau-indisponible");
+  // Hors-ligne : le cache est incomplet, ce n'est pas la fin du catalogue
+  if (snap.metadata.fromCache && (snap.docs.length === 0 || curseurPage)) throw new Error("reseau-indisponible");
   if (snap.docs.length < taille) pagesTerminees = true;
   if (snap.docs.length) curseurPage = snap.docs[snap.docs.length - 1];
   return snap.docs;
@@ -1608,6 +1625,38 @@ function majBadges() {
   if (tb) tb.style.display = "block";
 }
 
+// Charge les pages suivantes à partir du curseur actuel (sans rien effacer)
+async function chargerSuite(session, serveur) {
+  try {
+    while (!pagesTerminees && session === sessionChargement) {
+      const suite = await preparer(await chargerPage(PAGES_SUIVANTES, serveur, session));
+      if (session !== sessionChargement) return;
+      ajouterAuFil(suite);
+      majBadges();
+      const term = document.getElementById("searchInput").value.toLowerCase().trim();
+      if (activeFilter === "all" && !term) remplirEcran(); else applyFilters();
+    }
+    if (session === sessionChargement) sauverFilCache();
+  } catch (e) {
+    console.error("Erreur pages suivantes :", e);
+    if (session === sessionChargement) {
+      besoinRafraichir = true;   // on reprendra au retour du réseau
+      signalerReseau(navigator.onLine ? "lent" : "coupe");
+    }
+  }
+}
+
+// Au retour du réseau : on continue le fil, on ne le recommence pas
+async function reprendreChargement() {
+  if (chargementEnCours) return;
+  if (!curseurPage) { loadProducts(userPreferencesCache); return; }  // rien de chargé : vrai chargement
+  if (pagesTerminees) return;
+  const session = sessionChargement;
+  chargementEnCours = true;
+  try { await chargerSuite(session, false); }
+  finally { if (session === sessionChargement) chargementEnCours = false; }
+}
+
 async function loadProducts(userPreferences, forceRefresh = false) {
   const session = ++sessionChargement;
   const grid = document.getElementById("productsGrid");
@@ -1636,15 +1685,7 @@ async function loadProducts(userPreferences, forceRefresh = false) {
     signalerReseau("ok");
 
     // 2) Le reste du catalogue arrive en arrière-plan
-    while (!pagesTerminees && session === sessionChargement) {
-      const suite = await preparer(await chargerPage(PAGES_SUIVANTES, forceRefresh, session));
-      if (session !== sessionChargement) return;
-      ajouterAuFil(suite);
-      majBadges();
-      const term = document.getElementById("searchInput").value.toLowerCase().trim();
-      if (activeFilter === "all" && !term) remplirEcran(); else applyFilters();
-    }
-    if (session === sessionChargement) sauverFilCache();
+    await chargerSuite(session, forceRefresh);
   } catch (e) {
     clearTimeout(minuteurLent);
     console.error("Erreur chargement articles:", e);
@@ -1690,6 +1731,11 @@ const feedObserver = new IntersectionObserver((entries) => {
 
 const SVG_VENDU = `<svg viewBox="0 0 120 40" role="img" aria-label="Vendu"><rect x="1" y="1" width="118" height="38" rx="19" fill="#ef4444"/><path d="M19 21l5 5 9-11" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="44" y="26" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="17" font-weight="800" fill="#fff" letter-spacing="1">VENDU</text></svg>`;
 
+const optimise = (url, w = 500) =>
+  typeof url === "string" && url.includes("res.cloudinary.com") && !url.includes("/upload/f_auto")
+    ? url.replace("/upload/", `/upload/f_auto,q_auto,w_${w}/`)
+    : url;
+
 function creerCarte(p, canLike) {
   const isFav = userFavorites.includes(p.id);
   const favCount = p.favoris || 0;
@@ -1731,7 +1777,16 @@ function creerCarte(p, canLike) {
   const card = document.createElement("div");
   card.dataset.productId = p.id;
   card.className = `product-card ${boostClass} ${p.isSold ? "is-sold" : ""}`;
-  card.onclick = (e) => { if (!e.target.closest(".fav-btn")) window.location.href = `article.html?id=${encodeURIComponent(p.id)}`; };
+  card.onclick = (e) => {
+    if (e.target.closest(".fav-btn")) return;
+    // On garde l'ordre du fil : la page article continuera dans le même ordre
+    try {
+      const ids = renderSource.filter((x) => x.id === p.id || !x.isSold).map((x) => x.id);
+      const i = Math.max(0, ids.indexOf(p.id));
+      localStorage.setItem("vea_feed_ordre", JSON.stringify({ t: Date.now(), ids: ids.slice(i, i + 80) }));
+    } catch (_) {}
+    window.location.href = `article.html?id=${encodeURIComponent(p.id)}`;
+  };
 
   const proBadgeHtml = p.vendeurIsPremium ? `
     <span class="badge-pro" title="Certifié Premium Pro">
@@ -1750,7 +1805,7 @@ function creerCarte(p, canLike) {
   card.innerHTML = `
     <div class="image-container">
       ${boostBadgeHtml}
-      <img src="${esc(firstImage)}" alt="${esc(p.nom || "Produit")}" loading="lazy">
+      <img src="${esc(optimise(firstImage))}" alt="${esc(p.nom || "Produit")}" loading="lazy">
       ${p.isSold ? `<div class="sold-overlay">${SVG_VENDU}</div>` : ""}
       <div class="shop-badge">${esc(p.shopName || "Boutique")}</div>
       <div style="position: absolute; top: 10px; right: 10px; z-index: 5;" class="vendor-flag"></div>
@@ -2158,7 +2213,7 @@ function signalerReseau(etat) {
   if (etat === etatReseau) return;
   etatReseau = etat;
   if (etat === "ok") {
-    if (besoinRafraichir) { besoinRafraichir = false; loadProducts(userPreferencesCache); }
+    if (besoinRafraichir) { besoinRafraichir = false; reprendreChargement(); }
     showReseauToast("Connexion rétablie ✓", "ok");
   } else if (Date.now() - dernierToastReseau > 15000 || etat === "coupe") {
     if (etat === "lent") showReseauToast("Connexion lente : les derniers articles enregistrés restent affichés.", "warn");

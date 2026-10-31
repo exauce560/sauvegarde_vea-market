@@ -24,8 +24,12 @@
     }
 
     .feed-container {
+      position: fixed;          /* suit la vraie hauteur visible du téléphone */
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
-      height: 100vh;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
       scroll-behavior: smooth;
@@ -40,13 +44,13 @@
     .product-view {
       position: relative;
       width: 100%;
-      height: 100vh;
+      height: 100%;
       scroll-snap-align: start;
       scroll-snap-stop: always;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 20px 16px 30px 16px;
+      padding: 20px 16px calc(30px + env(safe-area-inset-bottom, 0px)) 16px;
     }
 
     .image-carousel {
@@ -76,7 +80,7 @@
 
     .carousel-dots {
       position: absolute;
-      bottom: 155px;
+      bottom: calc(155px + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -530,9 +534,119 @@
         display: block;
       }
     }
-* {
+ * {
     -webkit-tap-highlight-color: transparent;
+ }
+/* ===== Article vendu (téléphone et PC) ===== */
+.sold-overlay {
+  position: absolute; inset: 0; z-index: 4; display: grid; place-items: center;
+  background: rgba(0, 0, 0, 0.45); pointer-events: none;
+}
+.sold-stamp {
+  display: flex; align-items: center; gap: 10px; padding: 12px 26px;
+  background: #dc2626; border: 3px solid #fff; border-radius: 12px;
+  transform: rotate(-6deg); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+.sold-stamp svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 3.5; }
+.sold-stamp span { font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; }
+.product-view.is-sold .bg-image { filter: grayscale(0.75) brightness(0.7); }
+.product-view.is-sold .product-price { text-decoration: line-through; opacity: 0.65; }
+
+/* ========== ORDINATEUR (≥ 1000 px) : style sobre ========== */
+.feed-nav { display: none; }
+
+@media (min-width: 1000px) {
+  html, body { background: #0a0c10; }
+
+  .back-btn {
+    top: 24px; left: 28px; width: 44px; height: 44px;
+    background: #12161d; border: 1px solid #232a36; transition: background 0.2s;
   }
+  .back-btn:hover { background: #1a1f29; }
+
+  /* Photo à gauche (60 %), infos à droite */
+  .product-view {
+    --w: min(1180px, calc(100vw - 160px));
+    width: var(--w); margin: 0 auto;
+    padding: 0 8px 0 calc(var(--w) * 0.6 + 36px);
+    justify-content: center; gap: 16px;
+  }
+  .image-carousel, .overlay-gradient, .sold-overlay {
+    top: 48px; bottom: 48px; left: 0; right: auto; height: auto; width: 60%; border-radius: 16px;
+  }
+  .image-carousel { border: 1px solid #232a36; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); }
+  .overlay-gradient { background: linear-gradient(to bottom, rgba(0,0,0,.25), transparent 25%, transparent 75%, rgba(0,0,0,.3)); }
+  .carousel-dots { bottom: 72px; left: 30%; }
+
+  .share-btn {
+    top: 72px; right: auto; left: calc(60% - 58px); width: 40px; height: 40px;
+    background: rgba(10, 12, 16, 0.7); border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .share-btn:hover { background: rgba(10, 12, 16, 0.92); }
+  .share-menu { top: 120px; right: auto; left: calc(60% - 200px); background: #12161d; border: 1px solid #232a36; }
+  .pc-nav-btn {
+    display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%;
+    background: rgba(10, 12, 16, 0.7); border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .pc-nav-btn.prev { left: 16px; }
+  .pc-nav-btn.next { right: auto; left: calc(60% - 60px); }
+
+  /* Colonne d'infos : panneaux unis, une seule teinte */
+  .vendor-header, .product-details {
+    background: #12161d; border: 1px solid #232a36; border-radius: 14px; text-shadow: none;
+  }
+  .vendor-header { margin-top: 0; padding: 16px 18px; }
+  .vendor-avatar { width: 56px; height: 56px; }
+  .vendor-flag-container { background: #0a0c10; backdrop-filter: none; }
+  .product-details { padding: 22px; gap: 14px; }
+  .product-price { font-size: 2.2rem; letter-spacing: -0.5px; }
+  .product-meta { font-size: 1rem; font-weight: 600; color: #cbd5e1; }
+  .cart-btn-action { background: #1a1f29; border: 1px solid #2b3342; backdrop-filter: none; }
+  .cart-btn-action:hover { background: #232a36; }
+  .whatsapp-btn { padding: 14px; font-size: 1rem; border-radius: 10px; box-shadow: none; }
+  .whatsapp-btn:hover { background: #1eb857; }
+
+  /* Boosts : simple liseré autour de la photo, sans halo */
+  .product-view.boosted-account, .product-view.boosted-item { box-shadow: none; border: none; }
+  .product-view.boosted-account .image-carousel { box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.7); }
+  .product-view.boosted-item .image-carousel { box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.7); }
+
+  /* Flèches entre articles */
+  .feed-nav {
+    display: flex; flex-direction: column; gap: 10px;
+    position: fixed; right: 28px; top: 50%; transform: translateY(-50%); z-index: 40;
+  }
+  .feed-nav button {
+    width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: #fff;
+    background: #12161d; border: 1px solid #232a36; display: grid; place-items: center;
+    transition: background 0.2s;
+  }
+  .feed-nav button:hover { background: #232a36; }
+}
+
+/* Bouton désactivé quand l'article est vendu */
+.whatsapp-btn:disabled, .whatsapp-btn:disabled:hover {
+  background: #374151; color: #9ca3af; box-shadow: none; cursor: not-allowed; transform: none;
+}
+
+.bg-blur { display: none; }
+
+@media (min-width: 1000px) {
+  .bg-blur {
+    display: block; position: fixed; inset: -60px; z-index: 0;
+    background-size: cover; background-position: center;
+    filter: blur(45px) brightness(0.45) saturate(1.3);
+    transition: opacity 0.18s ease;
+  }
+  .feed-container { z-index: 1; }
+  .vendor-header, .product-details {
+    background: rgba(10, 12, 16, 0.6);
+    backdrop-filter: blur(14px);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  .vendor-flag-container { background: rgba(10, 12, 16, 0.6); }
+}
+
   </style>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -551,7 +665,7 @@
 </script>
 </head>
 <body>
-
+    <div class="bg-blur" id="bgBlur"></div>
   <div class="loading-screen" id="loadingScreen">Chargement du fil d'articles...</div>
 
   <button class="back-btn" onclick="history.back()" aria-label="Retour">
@@ -563,7 +677,10 @@
   <div class="feed-container" id="feedContainer"></div>
 
   <div class="toast-container" id="toast"></div>
-
+  <div class="feed-nav">
+    <button id="feedPrev" aria-label="Article précédent"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+    <button id="feedNext" aria-label="Article suivant"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+  </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, limit, startAfter, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -740,14 +857,89 @@ function remplirVendeur(card, product) {
   card._whatsapp = v.telephone || v.phone || v.whatsapp || "";
 }
 
+// ----- Ordre du fil : le même que l'accueil -----
+const PAGE_RECENT = 30;
+let ordreIds = [];
+let ordrePos = 0;
+let dernierVendeur = null;
+
+function lireOrdreAccueil() {
+  try {
+    const o = JSON.parse(localStorage.getItem("vea_feed_ordre"));
+    if (!o || !Array.isArray(o.ids) || Date.now() - o.t > 30 * 60 * 1000) return [];
+    if (initialProductId && o.ids[0] !== initialProductId) return [];
+    return o.ids;
+  } catch (_) { return []; }
+}
+
+// Évite que deux articles du même vendeur se suivent
+function melanger(produits) {
+  const reste = [...produits], res = [];
+  while (reste.length) {
+    let i = reste.findIndex((p) => p.vendeurId !== dernierVendeur);
+    if (i < 0) i = 0;
+    const [p] = reste.splice(i, 1);
+    res.push(p);
+    dernierVendeur = p.vendeurId;
+  }
+  return res;
+}
+
 async function chargerPageProduits() {
+  // 1) D'abord l'ordre exact de l'accueil (une seule requête groupée)
+  if (ordrePos < ordreIds.length) {
+    const lot = ordreIds.slice(ordrePos, ordrePos + PAGE_FEED);
+    ordrePos += lot.length;
+    try {
+      const r = await restFetch(`${REST_URL}:batchGet`, {
+        documents: lot.map((id) => `${DOC_ROOT}/produits/${id}`)
+      });
+      const parId = {};
+      r.forEach((x) => {
+        if (!x.found) return;
+        const id = x.found.name.split("/").pop();
+        parId[id] = { id, ...lireChamps(x.found.fields) };
+      });
+      return lot.map((id) => parId[id]).filter(Boolean);
+    } catch (e) {
+      console.error("Erreur ordre accueil :", e);
+      ordrePos = ordreIds.length;   // en cas d'échec, on passe aux articles récents
+    }
+  }
+
+  // 2) Ensuite (ou lien partagé) : articles récents, vendeurs mélangés
   const contraintes = [orderBy("createdAt", "desc")];
   if (curseur) contraintes.push(startAfter(curseur));
-  const snap = await getDocs(query(collection(db, "produits"), ...contraintes, limit(PAGE_FEED)));
-  if (snap.docs.length < PAGE_FEED) feedTermine = true;
+  const snap = await getDocs(query(collection(db, "produits"), ...contraintes, limit(PAGE_RECENT)));
+  if (snap.docs.length < PAGE_RECENT) feedTermine = true;
   if (snap.docs.length) curseur = snap.docs[snap.docs.length - 1];
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return melanger(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
 }
+
+// Fond flouté (PC) : suit la photo de l'article affiché
+let fondActuel = "";
+const petite = (u) => String(u).includes("res.cloudinary.com")
+  ? u.replace("/upload/", "/upload/f_auto,q_auto,w_200/") : u;
+
+function changerFond(url) {
+  if (!url || url === fondActuel) return;
+  fondActuel = url;
+  const f = document.getElementById("bgBlur");
+  f.style.opacity = 0;
+  setTimeout(() => {
+    f.style.backgroundImage = `url("${url.replace(/"/g, "%22")}")`;
+    f.style.opacity = 1;
+  }, 180);
+}
+
+const fondObserver = new IntersectionObserver((entries) => {
+  if (window.innerWidth < 1000) return;
+  entries.forEach((e) => {
+    if (!e.isIntersecting || e.intersectionRatio < 0.6) return;
+    const img = e.target.querySelector(".bg-image");
+    if (img) changerFond(petite(img.getAttribute("src")));
+  });
+}, { threshold: [0.6] });
 
 // La photo du vendeur se charge quand sa carte approche de l'écran
 const avatarObserver = new IntersectionObserver((entries) => {
@@ -785,7 +977,8 @@ function ajouterCartes(produits) {
     idsAffiches.add(p.id);
     const card = buildProductCard(p);
     card.dataset.vendeurId = p.vendeurId || "";
-    feed.appendChild(card);                   // l'article s'affiche tout de suite
+    feed.appendChild(card);                       // l'article s'affiche tout de suite
+    fondObserver.observe(card);
     paires.push({ p, card });
   });
 
@@ -802,6 +995,7 @@ function ajouterCartes(produits) {
 async function loadFeedData() {
   const loading = document.getElementById("loadingScreen");
   chargementSuite = true;
+  ordreIds = lireOrdreAccueil();
   try {
     const pagePromise = chargerPageProduits();   // part tout de suite, en parallèle
     if (initialProductId) {
@@ -839,6 +1033,16 @@ document.addEventListener("click", () => {
 
 loadFeedData();
 
+// Navigation PC : flèches à l'écran et clavier (↑ ↓)
+const feedEl = document.getElementById("feedContainer");
+const goFeed = (sens) => feedEl.scrollBy({ top: sens * feedEl.clientHeight, behavior: "smooth" });
+document.getElementById("feedPrev").onclick = () => goFeed(-1);
+document.getElementById("feedNext").onclick = () => goFeed(1);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); goFeed(1); }
+  else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); goFeed(-1); }
+});
+
     function buildProductCard(product) {
       const card = document.createElement("div");
       card.className = "product-view";
@@ -857,7 +1061,11 @@ loadFeedData();
       // Vérification si l'article est boosté
       const isArticleBoosted = (product.boost === true || product.isBoosted === true || product.boosted === true)
         && !!product.boostUntil && new Date(product.boostUntil) > new Date() && product.vendu !== true;
-
+      if (isArticleBoosted) card.classList.add("boosted-item");
+      // Article vendu ou épuisé ?
+      const stockNum = product.stock == null ? NaN : Number(product.stock);
+      const isSold = product.vendu === true || product.statut === "vendu" || (Number.isFinite(stockNum) && stockNum <= 0);
+      if (isSold) card.classList.add("is-sold");
       let imagesList = [];
       if (Array.isArray(product.images) && product.images.length > 0) {
         imagesList = product.images;
@@ -886,6 +1094,7 @@ loadFeedData();
         ${imagesHTML}
         ${dotsHTML}
         <div class="overlay-gradient"></div>
+        ${isSold ? '<div class="sold-overlay"><div class="sold-stamp"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>VENDU</span></div></div>' : ''}
 
         <button class="pc-nav-btn prev" aria-label="Photo précédente">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -963,9 +1172,9 @@ loadFeedData();
             ${isArticleBoosted ? '<span class="article-boost-badge">⭐ VIP Boost</span>' : ''}
           </div>
 
-          <button class="whatsapp-btn">
+          <button class="whatsapp-btn" ${isSold ? 'disabled' : ''}>
             <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            WHATSAPP
+            ${isSold ? 'ARTICLE VENDU' : 'WHATSAPP'}
           </button>
         </div>
       `;
